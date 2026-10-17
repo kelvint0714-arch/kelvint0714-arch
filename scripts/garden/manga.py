@@ -19,8 +19,8 @@ from . import data
 
 ROOT=Path(__file__).resolve().parents[2]
 THEMES={
- 'light':dict(paper='#ffffff',ink='#181818',secondary='#555555',faint='#bcbcbc',tone='#eeeeee',deep='#181818'),
- 'dark':dict(paper='#171717',ink='#f1f1f1',secondary='#b9b9b9',faint='#555555',tone='#282828',deep='#080808')}
+ 'light':dict(paper='#ffffff',ink='#101010',secondary='#444444',faint='#bcbcbc',tone='#eeeeee',deep='#181818'),
+ 'dark':dict(paper='#fafafa',ink='#101010',secondary='#444444',faint='#b4b4b4',tone='#eeeeee',deep='#101010')}
 
 def esc(text): return html.escape(str(text if text is not None else ''),quote=True)
 def n(value): return f'{float(value):.3f}'.rstrip('0').rstrip('.') or '0'
@@ -33,6 +33,7 @@ class Doc:
         self.pal=THEMES[theme];self.theme=theme;self.parts=[];self.defs=[];self.serial=0
         p=self.pal
         self.defs.extend([
+          f'<pattern id="dense-dots" width="3" height="3" patternUnits="userSpaceOnUse"><circle cx=".8" cy=".8" r=".75" fill="{p["ink"]}"/></pattern>',
           f'<pattern id="dots" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".65" fill="{p["ink"]}"/></pattern>',
           f'<pattern id="fine-dots" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".52" fill="{p["ink"]}"/></pattern>',
           f'<pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(32)"><path d="M0 0V6" stroke="{p["ink"]}" stroke-width=".8"/></pattern>'
@@ -45,7 +46,7 @@ class Doc:
         return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{self.width}" height="{self.height}" viewBox="0 0 {self.width} {self.height}" role="img" aria-labelledby="title desc">'
             f'<title id="title">{esc(self.title)}</title><desc id="desc">{esc(self.desc)}</desc>'
             '<style>text{font-kerning:normal} @media(prefers-reduced-motion:reduce){*{animation:none!important}}</style>'
-            f'<defs>{"".join(self.defs)}</defs><g stroke-linecap="round" stroke-linejoin="round">'+''.join(self.parts)+'</g></svg>')
+            f'<defs>{"".join(self.defs)}</defs><g data-edition="ink-v2" stroke-linecap="round" stroke-linejoin="round">'+''.join(self.parts)+'</g></svg>')
 
 def text(doc,label,x,y,size=16,face='sans',weight=400,fill=None,anchor='start',spacing=0,italic=False):
     family={'sans':'Arial, Helvetica, sans-serif','serif':'Georgia, Times New Roman, serif','cjk':'Noto Serif CJK JP, Yu Mincho, Songti SC, serif','mono':'Menlo, Consolas, monospace'}[face]
@@ -101,54 +102,55 @@ def line(doc,x1,y1,x2,y2,width=1,ink=None):
     return f'<path d="M{n(x1)} {n(y1)}L{n(x2)} {n(y2)}" fill="none" stroke="{ink or doc.pal["ink"]}" stroke-width="{n(width)}"/>'
 
 def panel(doc):
+    """A sheet of black ink on white paper in both display themes."""
     w,h=doc.width,doc.height;p=doc.pal
-    # Double ink rule with a small offset hatch: a printed panel, not a 3-D card.
-    doc.add(f'<path d="M8 11H{w-5}V{h-7}H8Z" fill="url(#hatch)"/>')
-    doc.add(f'<path d="M3 4H{w-11}V{h-14}H3Z" fill="{p["paper"]}" stroke="{p["ink"]}" stroke-width="1.55"/>')
-    doc.add(f'<path d="M10 11H{w-18}V{h-21}H10Z" fill="none" stroke="{p["ink"]}" stroke-width=".42"/>')
+    doc.add(f'<rect width="{w}" height="{h}" fill="{p["paper"]}"/>')
+    doc.add(f'<path d="M12 10H{w-13}L{w-10} {h-13}H11Z" fill="none" stroke="{p["ink"]}" stroke-width="1.7"/>')
+    doc.add(f'<path d="M18 16H{w-20}M18 16V{h-21}M{w-20} 22V{h-21}H23" fill="none" stroke="{p["ink"]}" stroke-width=".45"/>')
+    # Unequal nib weight, rather than a blurred or extruded card shadow.
+    doc.add(f'<path d="M11 9H{min(103,w-30)}V13H11ZM{w-13} {h-98}L{w-9} {h-13}H{w-13}Z" fill="{p["ink"]}"/>')
 
 def petal_leaf(doc,length=34,width=10,black=False):
-    p=doc.pal
-    shape=f'M0 0C{-width*.7} {-length*.32} {-width} {-length*.68} 2 {-length}C{width*1.18} {-length*.7} {width*.87} {-length*.21} 0 0Z'
-    out=f'<path d="{shape}" fill="{p["ink"] if black else p["paper"]}" stroke="{p["ink"]}" stroke-width="1.1"/>'
-    ink=p['paper'] if black else p['ink']
-    out+=f'<path d="M0 0Q4 {-length*.57} 2 {-length*.95}" stroke="{ink}" stroke-width=".64" fill="none"/>'
-    for i in range(1,5):
-        y=-length*(.14+i*.13)
-        for side in (-1,1):
-            out+=f'<path d="M2 {n(y)}Q{n(side*width*.4)} {n(y-length*.035)} {n(side*width*.68)} {n(y-length*.1)}" stroke="{ink}" stroke-width=".4" fill="none"/>'
+    p=doc.pal;i=p['ink'];a=p['paper']
+    shape=f'M0 0C{-width*1.1} {-length*.29} {-width*.93} {-length*.63} 3 {-length}C{width*1.11} {-length*.68} {width} {-length*.28} 0 0Z'
+    out=f'<path d="{shape}" fill="{i if black else a}" stroke="{i}" stroke-width="1.3"/>'
+    vein=a if black else i
+    out+=f'<path d="M0-1Q4 {-length*.63} 3 {-length*.94}" fill="none" stroke="{vein}" stroke-width=".7"/>'
+    for k in range(1,7):
+        y=-length*(.11+k*.1)
+        for side in [-1,1]:
+            out+=f'<path d="M2 {n(y)}Q{n(side*width*.39)} {n(y-length*.09)} {n(side*width*.65)} {n(y-length*.16)}" fill="none" stroke="{vein}" stroke-width=".4"/>'
+    if not black:
+        out+=f'<path d="M0 0Q{-width*.5} {-length*.29} {-width*.35} {-length*.49}Q1 {-length*.27} 0 0Z" fill="{i}"/>'
     return out
 
 def blossom(doc,radius=46,seed=1,kind='rose'):
-    """Original layered ink petals with tapered folds and curved radial hatching."""
+    """Layered nib-drawn petals, hard ink folds and screentone, never lighting."""
     rng=random.Random(seed);p=doc.pal;out=[]
-    if kind=='sakura':
-        rows=[(5,1,0)]
-    else: rows=[(8,1,.0),(6,.73,.28),(5,.48,-.12)]
+    rows=[(5,1,0)] if kind=='sakura' else [(8,1,0),(7,.71,.27),(5,.44,-.19)]
     for row,(num,scale,phase) in enumerate(rows):
-        for i in range(num):
-            a=360*i/num+phase*180/math.pi+rng.uniform(-5,5)
-            r=radius*scale*rng.uniform(.9,1.07);w=r*(.46 if row==0 else .53)
-            shape=(f'M-2 {n(-r*.12)}C{n(-w*.62)} {n(-r*.18)} {n(-w*1.25)} {n(-r*.55)} {n(-w*.91)} {n(-r*.84)}'
-                   f'C{n(-w*.71)} {n(-r*1.07)} {n(-w*.22)} {n(-r*1.05)} {n(w*.035)} {n(-r*.94)}'
-                   f'C{n(w*.48)} {n(-r*1.14)} {n(w*1.17)} {n(-r*.96)} {n(w*1.09)} {n(-r*.7)}'
-                   f'C{n(w*1.04)} {n(-r*.42)} {n(w*.55)} {n(-r*.1)} -2 {n(-r*.12)}Z')
-            fill=p['paper']
-            segment=f'<path d="{shape}" fill="{fill}" stroke="{p["ink"]}" stroke-width="{n(1.05 if row else 1.3)}"/>'
-            # Small screentone crescent inside the petal, never a blurred drop shadow.
-            shade=f'M0 {n(-r*.13)}Q{n(-w*.85)} {n(-r*.51)} {n(-w*.6)} {n(-r*.88)}Q{n(-w*.25)} {n(-r*.6)} 0 {n(-r*.13)}Z'
+        for k in range(num):
+            a=360*k/num+phase*180/math.pi+rng.uniform(-7,7)
+            r=radius*scale*rng.uniform(.88,1.08);w=r*(.51 if row==0 else .56)
+            shape=(f'M-1 {n(-r*.12)}C{n(-w*.75)} {n(-r*.19)} {n(-w*1.26)} {n(-r*.61)} {n(-w*.88)} {n(-r*.84)}'
+                   f'C{n(-w*.58)} {n(-r*1.06)} {n(-w*.14)} {n(-r*1.08)} {n(w*.05)} {n(-r*.94)}'
+                   f'C{n(w*.45)} {n(-r*1.16)} {n(w*1.16)} {n(-r*.95)} {n(w*1.03)} {n(-r*.67)}'
+                   f'C{n(w*.96)} {n(-r*.36)} {n(w*.32)} {n(-r*.18)} -1 {n(-r*.12)}Z')
+            shade=(f'M-1 {n(-r*.12)}Q{n(-w*.98)} {n(-r*.52)} {n(-w*.72)} {n(-r*.85)}'
+                   f'Q{n(-w*.20)} {n(-r*.58)} -1 {n(-r*.12)}Z')
+            segment=f'<path d="{shape}" fill="{p["paper"]}" stroke="{p["ink"]}" stroke-width="{n(1.38 if row==0 else 1.02)}"/>'
             segment+=f'<path d="{shade}" fill="url(#fine-dots)"/>'
-            for k in range(5):
-                xx=(-.5+k*.23)*w
-                yy=-r*(.52+.15*math.sin(k*.6+row))
-                segment+=f'<path d="M{n(xx*.19)} {n(-r*.22)}Q{n(xx*.85)} {n(-r*.43)} {n(xx)} {n(yy)}" fill="none" stroke="{p["ink"]}" stroke-width="{n(.37+.08*(k%2))}"/>'
-            segment+=f'<path d="M{n(-w*.69)} {n(-r*.84)}Q{n(-w*.3)} {n(-r*.99)} {n(w*.05)} {n(-r*.85)}" fill="none" stroke="{p["ink"]}" stroke-width=".8"/>'
-            # Wedge establishes line-weight at the overlapping base.
-            segment+=f'<path d="M-2 {n(-r*.12)}Q{n(-w*.32)} {n(-r*.2)} {n(-w*.45)} {n(-r*.4)}Q{n(-w*.25)} {n(-r*.26)} -2 {n(-r*.12)}Z" fill="{p["ink"]}"/>'
+            # Tapered black crescent follows the hidden petal edge.
+            segment+=(f'<path d="M-1 {n(-r*.12)}Q{n(-w*.87)} {n(-r*.45)} {n(-w*.81)} {n(-r*.77)}'
+                      f'Q{n(-w*.54)} {n(-r*.44)} {n(-w*.19)} {n(-r*.37)}L-1 {n(-r*.12)}Z" fill="{p["ink"]}"/>')
+            for j in range(7):
+                xx=(-.33+j*.12)*w;end=-r*(.42+.12*math.sin(j*.8+row)+rng.random()*.08)
+                segment+=(f'<path d="M{n(xx*.19)} {n(-r*.24)}Q{n(xx*.78)} {n(-r*.37)} {n(xx)} {n(end)}" '
+                          f'fill="none" stroke="{p["ink"]}" stroke-width="{n(.34+.055*(j%3))}"/>')
+            segment+=f'<path d="M{n(-w*.61)} {n(-r*.85)}Q{n(-w*.3)} {n(-r*.97)} {n(w*.04)} {n(-r*.86)}" fill="none" stroke="{p["ink"]}" stroke-width=".7"/>'
             out.append(f'<g transform="rotate({n(a)})">{segment}</g>')
-    # Irregular central folds.
-    rr=radius*.2
-    out.append(f'<path d="M{n(-rr)} 2C{n(-rr)} {n(-rr)} {n(rr)} {n(-rr)} {n(rr)} 0C{n(rr)} {n(rr)} {n(-rr*.7)} {n(rr)} {n(-rr*.6)} 0Q0 {n(-rr*.6)} {n(rr*.5)} 0Q0 {n(rr*.4)} 0 0" fill="{p["paper"]}" stroke="{p["ink"]}" stroke-width="1.1"/>')
+    rr=radius*.18
+    out.append(f'<path d="M{n(-rr)} 2C{n(-rr)} {n(-rr)} {n(rr)} {n(-rr)} {n(rr)} 0C{n(rr)} {n(rr)} {n(-rr*.7)} {n(rr)} {n(-rr*.6)} 0Q0 {n(-rr*.7)} {n(rr*.5)} 0Q0 {n(rr*.4)} 0 0" fill="{p["paper"]}" stroke="{p["ink"]}" stroke-width="1.2"/>')
     return ''.join(out)
 
 def sprig(doc,variant=0):
@@ -177,7 +179,7 @@ def header(theme,section,index,mobile=False):
     doc.add(text(doc,section['number'],center,70 if not mobile else 64,31 if not mobile else 23,'serif',fill=p['paper'],anchor='middle',italic=True))
     doc.add(text(doc,'CH.',center,94 if not mobile else 85,9,'sans',fill=p['paper'],anchor='middle',spacing=2))
     x=114 if not mobile else 77
-    doc.add(text(doc,'THE GARDEN / IN BLACK & WHITE' if not mobile else 'INK / PETALS',x,33,10 if not mobile else 9,spacing=2))
+    doc.add(text(doc,'INK & PETALS / A MANGA JOURNAL' if not mobile else 'INK & PETALS',x,33,10 if not mobile else 9,spacing=2))
     doc.add(title(doc,section['title'].title(),x,100 if not mobile else 88,75 if not mobile else 47,max_width=520 if not mobile else 286))
     doc.add(text(doc,section.get('title_ja',''),x,134 if not mobile else 115,18 if not mobile else 15,'cjk',spacing=4))
     if not mobile:
@@ -253,61 +255,76 @@ def calendar_card(theme,snap,mobile=False):
     return doc
 
 def bouquet_card(theme,snap,mobile=False):
-    w=480 if mobile else 960;h=498 if mobile else 365;p=THEMES[theme]
-    values=sorted([(str(k),max(0,int(v))) for k,v in snap.get('languages',{}).items()],key=lambda x:(-x[1],x[0]))
-    values=[x for x in values if x[1]>0];total=sum(v for _,v in values)
-    if len(values)>6:values=values[:5]+[('Other',sum(v for _,v in values[5:]))]
-    doc=Doc(w,h,'Language bouquet','Language shares by code bytes in public, non-fork repositories. '+ '; '.join(f'{k}: {v} bytes' for k,v in values),theme)
+    w=480 if mobile else 960;h=807 if mobile else 574;p=THEMES[theme]
+    vals=sorted([(str(k),max(0,int(v))) for k,v in snap.get('languages',{}).items()],key=lambda z:(-z[1],z[0]))
+    vals=[v for v in vals if v[1]];total=sum(v for _,v in vals)
+    if len(vals)>6:vals=vals[:5]+[('Other',sum(v for _,v in vals[5:]))]
+    doc=Doc(w,h,'Language bouquet','Language shares by code bytes in public, non-fork repositories. '+'; '.join(f'{k}: {v} bytes' for k,v in vals),theme)
     panel(doc)
-    doc.add(title(doc,'Language Bouquet',28 if mobile else 38,58,41 if mobile else 46,max_width=w-55 if mobile else 450))
-    if not mobile:doc.add(text(doc,'言語の花束',w-40,51,16,'cjk',anchor='end',spacing=3))
-    doc.add(line(doc,30,76,w-39,76,1))
-    if not mobile:
-        doc.add(f'<path d="M27 91H317V329H27Z" fill="url(#dots)"/>')
-        # The diagonal white cut-out and bow frame one ink bouquet.
-        doc.add(f'<path d="M64 87H280L243 338H107Z" fill="{p["paper"]}"/>')
-        doc.add(place(177,180,sprig(doc,12),scale=1.03,rotate=-8))
-        doc.add(f'<path d="M85 248Q137 315 221 284M131 258Q175 317 233 264" fill="none" stroke="{p["ink"]}" stroke-width="1.3"/>')
-        doc.add(f'<path d="M160 281Q120 259 131 292Q158 300 175 284Q216 263 215 294Q196 306 175 284M168 290L148 326M177 291L200 322" fill="{p["paper"]}" stroke="{p["ink"]}" stroke-width="1.2"/>')
-    x=31 if mobile else 355;right=w-42;y=136 if mobile else 116;gap=50 if mobile else 36.5
-    if mobile:doc.add(text(doc,'CODE, GATHERED INTO A BOUQUET.',x,103,10,spacing=1.2,fill=p['secondary']))
-    pattern_names=[p['ink'],'url(#hatch)','url(#dots)',p['secondary'],'url(#fine-dots)',p['faint']]
-    for i,(name,value) in enumerate(values):
+    doc.add(title(doc,'Language Bouquet',29 if mobile else 38,68,46 if mobile else 56,max_width=419 if mobile else 665))
+    if not mobile:doc.add(text(doc,'言語の花束',w-42,58,19,'cjk',anchor='end',spacing=3))
+    doc.add(line(doc,30,86,w-34,86,1.1))
+    if mobile:
+        doc.add(f'<path d="M28 104H451V342H28Z" fill="url(#dots)"/>')
+        doc.add(f'<path d="M160 97H370L315 345H128Z" fill="{p["paper"]}"/>')
+        doc.add(place(130,68,bouquet_art(doc),scale=.655))
+        doc.add(text(doc,'INK',44,151,22,'serif',italic=True))
+        doc.add(text(doc,'& PETALS',44,173,11,spacing=1))
+        doc.add(text(doc,f'{len(vals):02d}',422,295,37,'serif',italic=True,anchor='end'))
+        doc.add(text(doc,'LANGUAGES',425,316,8,anchor='end',spacing=.6))
+        x,right,y,gap=46,435,388,59
+    else:
+        doc.add(f'<path d="M29 104H327V531H29Z" fill="url(#dots)"/>')
+        doc.add(f'<path d="M127 97H266L287 535H74Z" fill="{p["paper"]}"/>')
+        doc.add(place(32,103,bouquet_art(doc),scale=.91))
+        doc.add(text(doc,'gathered in ink',175,529,22,'serif',italic=True,anchor='middle'))
+        doc.add(line(doc,344,112,344,523,.65))
+        x,right,y,gap=387,912,145,64
+    patterns=[p['ink'],'url(#hatch)','url(#dense-dots)','url(#dots)','url(#fine-dots)',p['ink']]
+    for j,(name,value) in enumerate(vals):
         share=value/total if total else 0
-        doc.add(text(doc,fit(name,17 if mobile else 18,right-x-88),x,y,17 if mobile else 18,weight=600))
-        doc.add(text(doc,f'{share*100:.1f}%',right,y+1,21,'serif',italic=True,anchor='end'))
-        bar_y=y+12;bar_w=right-x
-        doc.add(f'<rect x="{x}" y="{n(bar_y)}" width="{bar_w}" height="6" fill="{p["tone"]}" stroke="{p["faint"]}" stroke-width=".3"/>')
-        doc.add(f'<rect data-language="{esc(name)}" data-bytes="{value}" data-share="{n(share)}" x="{x}" y="{n(bar_y)}" width="{n(bar_w*share)}" height="6" fill="{pattern_names[i%len(pattern_names)]}"/>')
+        doc.add(place(x-18,y-6,small_flower(doc,4 if j==0 else 1),scale=.8))
+        doc.add(text(doc,fit(name,19 if mobile else 22,right-x-86),x,y,19 if mobile else 22,weight=600))
+        doc.add(text(doc,f'{share*100:.1f}%',right,y+1,26 if mobile else 29,'serif',italic=True,anchor='end'))
+        bw=right-x;by=y+15
+        doc.add(f'<rect x="{x}" y="{n(by)}" width="{bw}" height="9" fill="{p["paper"]}" stroke="{p["ink"]}" stroke-width=".7"/>')
+        doc.add(f'<rect data-language="{esc(name)}" data-bytes="{value}" data-share="{n(share)}" x="{x}" y="{n(by)}" width="{n(bw*share)}" height="9" fill="{patterns[j%6]}"/>')
         y+=gap
-    if not values:doc.add(text(doc,'No public code yet',x,y+30,21,'serif',italic=True))
-    doc.add(text(doc,'PUBLIC, NON-FORK REPOSITORIES / BY CODE BYTES',x,h-30,9.5 if mobile else 11,fill=p['secondary'],spacing=.5))
+    if not vals:doc.add(text(doc,'No public code yet',x,y+30,21,'serif',italic=True))
+    doc.add(text(doc,'PUBLIC / NON-FORK REPOSITORIES / BY CODE BYTES',30 if mobile else 387,h-31,9.5 if mobile else 11,spacing=.4))
     return doc
 
 def notes_card(theme,snap,notes,tz_name,mobile=False):
-    w=480 if mobile else 960;h=465 if mobile else 388;p=THEMES[theme]
+    w=480 if mobile else 960;h=657 if mobile else 603;p=THEMES[theme]
     doc=Doc(w,h,'Garden notes','Recent public activity. '+('; '.join(f'{e["local"].isoformat()} {e["text"]} / {e["repo"]}' for e in notes) or 'No events in the last 30 days.'),theme)
-    panel(doc);doc.add(title(doc,'Garden Notes',29 if mobile else 38,58,43 if mobile else 46,max_width=w-95))
-    doc.add(text(doc,'花便り',w-39,50,16,'cjk',anchor='end',spacing=2))
-    doc.add(line(doc,30,76,w-39,76,1))
-    y=111;step=64 if mobile else 48
-    x=108 if mobile else 155
-    for i,note in enumerate(notes[:5]):
+    panel(doc)
+    doc.add(title(doc,'Garden Notes',30 if mobile else 38,68,47 if mobile else 56,max_width=w-139))
+    doc.add(text(doc,'花便り',w-38,60,18,'cjk',anchor='end',spacing=2))
+    doc.add(line(doc,30,86,w-34,86,1.1))
+    x=116 if mobile else 192;bx=x-12;y=128;step=97 if mobile else 86
+    for j,note in enumerate(notes[:5]):
         stamp=note['local'].strftime('%m.%d');clock=note['local'].strftime('%H:%M')
-        doc.add(text(doc,stamp,31 if mobile else 40,y,16,'serif',italic=True))
-        doc.add(text(doc,clock,32 if mobile else 41,y+17,10,fill=p['secondary']))
-        doc.add(place(x-16,y-4,small_flower(doc,3 if i==0 else 1)))
-        if i<len(notes)-1:doc.add(line(doc,x-16,y+7,x-16,y+step-14,.65,ink=p['faint']))
-        doc.add(text(doc,fit(note['text'],16 if mobile else 18,w-x-40),x,y,16 if mobile else 18,weight=600))
+        doc.add(text(doc,stamp,32 if mobile else 44,y+10,19 if mobile else 25,'serif',italic=True))
+        doc.add(text(doc,clock,33 if mobile else 46,y+33,11 if mobile else 13))
+        # Pen-drawn stem connects ink flowers in the gutter outside the caption boxes.
+        cx=88 if mobile else 144
+        if j<len(notes[:5])-1:
+            doc.add(f'<path d="M{cx} {y+10}Q{cx+7} {y+43} {cx} {y+step-9}" fill="none" stroke="{p["ink"]}" stroke-width="1.05"/>')
+            doc.add(place(cx+1,y+48,petal_leaf(doc,25,6,j%2==0),rotate=50 if j%2 else -47))
+        doc.add(place(cx,y,blossom(doc,10 if mobile else 13,j+290,'sakura')))
+        top=y-17;bottom=y+57 if mobile else y+52;right=w-35
+        d=f'M{bx} {top}H{right}V{bottom}H{bx}V{y+14}L{bx-8} {y+7}L{bx} {y+4}Z'
+        doc.add(f'<path d="{d}" fill="{p["paper"]}" stroke="{p["ink"]}" stroke-width="{1.35 if j==0 else .85}"/>')
+        doc.add(f'<path d="M{right-34} {top+1}H{right-1}V{top+31}Z" fill="url(#fine-dots)"/>')
+        doc.add(text(doc,fit(note['text'],17 if mobile else 21,right-x-26),x+2,y+7,17 if mobile else 21,weight=600))
         name=note['repo'];prefix=snap.get('user','')+'/'
         if name.startswith(prefix):name=name[len(prefix):]
-        doc.add(text(doc,fit(name,12 if mobile else 14,w-x-40),x,y+23 if mobile else y+21,12 if mobile else 14,fill=p['secondary']))
-        doc.add(line(doc,x,y+34,w-40,y+34,.4,ink=p['faint']))
+        doc.add(text(doc,fit(name,13 if mobile else 16,right-x-23),x+2,y+32,13 if mobile else 16,'serif'))
         y+=step
     if not notes:
-        doc.add(place(w/2,188,blossom(doc,39,33)))
-        doc.add(text(doc,'The garden is resting.',w/2,267,22,'serif',italic=True,anchor='middle'))
-    doc.add(text(doc,f'LAST 30 DAYS / {tz_name.upper()}',31 if mobile else 40,h-30,10,fill=p['secondary'],spacing=1))
+        doc.add(place(w/2,245,blossom(doc,62,311)))
+        doc.add(text(doc,'The garden is resting.',w/2,358,27,'serif',italic=True,anchor='middle'))
+    doc.add(text(doc,f'LAST 30 DAYS / {tz_name.upper()}',32 if mobile else 42,h-31,10 if mobile else 11,spacing=.8))
     return doc
 
 def little_architecture(doc):
@@ -388,3 +405,37 @@ def picture(base,alt,width='100%',href=None):
        f'  <source media="(prefers-color-scheme: dark)" srcset="{esc(base)}-dark.svg" />\n'
        f'  <img src="{esc(base)}-light.svg" width="{width}" alt="{esc(alt)}" />\n</picture>')
     return f'<a href="{esc(href)}">\n{s}\n</a>' if href else s
+
+
+def bouquet_art(doc):
+    """An original flower arrangement, drawn as solid ink, contours and dots."""
+    p=doc.pal;i=p['ink'];a=p['paper'];out=[]
+    stems=['M171 351C137 278 92 176 62 135','M172 351C207 266 223 178 198 83','M171 352C216 280 271 218 276 179','M171 353C120 312 85 282 52 253','M171 355C200 315 255 310 259 274','M170 355C153 278 126 228 126 204']
+    for d in stems:
+        out.append(f'<path d="{d}" fill="none" stroke="{i}" stroke-width="2.1"/>')
+    for x,y,l,w,angle,black in [(169,330,70,15,-60,1),(183,317,83,21,59,1),(141,280,61,14,-52,0),(199,254,57,17,54,1),(224,221,48,12,57,0),(115,239,56,16,-76,1),(83,188,49,12,-42,1),(212,150,62,17,47,1),(152,308,44,11,30,0),(226,316,45,13,50,1),(95,291,54,12,-67,1)]:
+        out.append(place(x,y,petal_leaf(doc,l,w,bool(black)),rotate=angle))
+    for x,y,r,seed,kind,angle in [(62,135,39,151,'rose',-15),(276,179,33,143,'sakura',20),(52,253,24,16,'sakura',-12),(259,274,30,125,'sakura',-16),(198,83,60,72,'rose',16),(126,204,42,192,'rose',-5)]:
+        out.append(place(x,y,blossom(doc,r,seed,kind),rotate=angle))
+    # A flowing black ribbon echoes the avatar's large ink masses and white hair highlights.
+    out.append(f'<path d="M170 350C142 320 85 317 92 343C97 368 145 364 170 350Z" fill="{i}" stroke="{i}" stroke-width="1.2"/>')
+    out.append(f'<path d="M176 350C205 319 246 324 233 348C221 373 195 365 176 350Z" fill="{a}" stroke="{i}" stroke-width="1.7"/>')
+    out.append(f'<path d="M176 350C207 333 224 334 230 340C207 341 193 354 179 356Z" fill="url(#fine-dots)"/>')
+    out.append(f'<path d="M168 353C162 380 148 391 135 413L151 407L162 414C163 393 186 368 178 354Z" fill="{i}"/>')
+    out.append(f'<path d="M174 354C202 371 214 389 232 399L213 398L208 408C202 385 180 380 170 358Z" fill="{a}" stroke="{i}" stroke-width="1.3"/>')
+    out.append(f'<path d="M102 340Q131 332 163 350M103 345Q131 342 161 353M165 367Q156 392 146 401" fill="none" stroke="{a}" stroke-width=".75"/>')
+    out.append(f'<path d="M185 362Q202 381 217 391" fill="none" stroke="{i}" stroke-width=".9"/>')
+    out.append(f'<path d="M162 343Q174 339 182 348L179 360Q168 364 161 353Z" fill="{i}"/><path d="M168 347Q173 344 177 349" fill="none" stroke="{a}" stroke-width=".7"/>')
+    return '<g data-ink-art="bouquet">'+''.join(out)+'</g>'
+
+
+def footer(theme,mobile=False):
+    w=480 if mobile else 960;h=108;p=THEMES[theme]
+    doc=Doc(w,h,'One day, one flower.','一日一輪 / An original monochrome manga-style profile.',theme)
+    doc.add(f'<rect width="{w}" height="{h}" fill="{p["paper"]}"/>')
+    doc.add(line(doc,28,18,w-28,18,1.2))
+    doc.add(place(54 if mobile else 255,64,blossom(doc,15,557,'sakura')))
+    doc.add(text(doc,'one day, one flower.',w/2,63,26 if mobile else 29,'serif',italic=True,anchor='middle'))
+    doc.add(text(doc,'一日一輪',w/2,88,13,'cjk',anchor='middle',spacing=5))
+    doc.add(text(doc,'FIN',w-29,45,9,'serif',italic=True,anchor='end'))
+    return doc

@@ -5,31 +5,31 @@
 </picture>
 <!-- BANNER:END -->
 
-<!-- MANGA-EDITION: v1 / blackletter headings, ink flowers, linked repository panels -->
+<!-- MANGA-EDITION: ink-v2 / ALL non-video visuals: paper, ink, hatching and screentone -->
 
 <picture>
-  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/sections/header-garden-dark-mobile.svg" />
-  <source media="(max-width: 600px)" srcset="./assets/sections/header-garden-light-mobile.svg" />
-  <source media="(prefers-color-scheme: dark)" srcset="./assets/sections/header-garden-dark.svg" />
-  <img src="./assets/sections/header-garden-light.svg" width="100%" alt="Project Garden · 花壇. Works and public repositories." />
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/ink-v2/sections/header-garden-dark-mobile.svg" />
+  <source media="(max-width: 600px)" srcset="./assets/ink-v2/sections/header-garden-light-mobile.svg" />
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/ink-v2/sections/header-garden-dark.svg" />
+  <img src="./assets/ink-v2/sections/header-garden-light.svg" width="100%" alt="Project Garden · 花壇. Works and public repositories." />
 </picture>
 
 <!-- GARDEN-REPOS:START -->
 <a href="https://github.com/kelvint0714-arch/kelvint0714-arch.github.io">
 <picture>
-  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/repos/kelvint0714-arch-github-io-b5ab2e7-dark-mobile.svg" />
-  <source media="(max-width: 600px)" srcset="./assets/repos/kelvint0714-arch-github-io-b5ab2e7-light-mobile.svg" />
-  <source media="(prefers-color-scheme: dark)" srcset="./assets/repos/kelvint0714-arch-github-io-b5ab2e7-dark.svg" />
-  <img src="./assets/repos/kelvint0714-arch-github-io-b5ab2e7-light.svg" width="100%" alt="kelvint0714-arch.github.io. Event Horizon — Kelvin Tang&#x27;s personal homepage · Kelvin Tang 的个人主页 TypeScript. 1 stars. Updated 2026-10-17. Open repository." />
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/ink-v2/repos/kelvint0714-arch-github-io-b5ab2e7-dark-mobile.svg" />
+  <source media="(max-width: 600px)" srcset="./assets/ink-v2/repos/kelvint0714-arch-github-io-b5ab2e7-light-mobile.svg" />
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/ink-v2/repos/kelvint0714-arch-github-io-b5ab2e7-dark.svg" />
+  <img src="./assets/ink-v2/repos/kelvint0714-arch-github-io-b5ab2e7-light.svg" width="100%" alt="kelvint0714-arch.github.io. Event Horizon — Kelvin Tang&#x27;s personal homepage · Kelvin Tang 的个人主页 TypeScript. 1 stars. Updated 2026-10-17. Open repository." />
 </picture>
 </a>
 
 <a href="https://github.com/kelvint0714-arch/ML-practice">
 <picture>
-  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/repos/ml-practice-0c95dec-dark-mobile.svg" />
-  <source media="(max-width: 600px)" srcset="./assets/repos/ml-practice-0c95dec-light-mobile.svg" />
-  <source media="(prefers-color-scheme: dark)" srcset="./assets/repos/ml-practice-0c95dec-dark.svg" />
-  <img src="./assets/repos/ml-practice-0c95dec-light.svg" width="100%" alt="ML-practice. this Jupyter Notebook. 2 stars. Updated 2026-09-01. Open repository." />
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/ink-v2/repos/ml-practice-0c95dec-dark-mobile.svg" />
+  <source media="(max-width: 600px)" srcset="./assets/ink-v2/repos/ml-practice-0c95dec-light-mobile.svg" />
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/ink-v2/repos/ml-practice-0c95dec-dark.svg" />
+  <img src="./assets/ink-v2/repos/ml-practice-0c95dec-light.svg" width="100%" alt="ML-practice. this Jupyter Notebook. 2 stars. Updated 2026-09-01. Open repository." />
 </picture>
 </a>
 
@@ -44,31 +44,36 @@
 <!-- GARDEN-REPOS:END -->
 
 <picture>
-  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/sections/header-bloom-dark-mobile.svg" />
-  <source media="(max-width: 600px)" srcset="./assets/sections/header-bloom-light-mobile.svg" />
-  <source media="(prefers-color-scheme: dark)" srcset="./assets/sections/header-bloom-dark.svg" />
-  <img src="./assets/sections/header-bloom-light.svg" width="100%" alt="Bloom Log · 開花記録. Contributions, languages and notes." />
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/ink-v2/sections/header-bloom-dark-mobile.svg" />
+  <source media="(max-width: 600px)" srcset="./assets/ink-v2/sections/header-bloom-light-mobile.svg" />
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/ink-v2/sections/header-bloom-dark.svg" />
+  <img src="./assets/ink-v2/sections/header-bloom-light.svg" width="100%" alt="Bloom Log · 開花記録. Contributions, languages and notes." />
 </picture>
 
 <picture>
-  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/metrics/calendar-dark-mobile.svg" />
-  <source media="(max-width: 600px)" srcset="./assets/metrics/calendar-light-mobile.svg" />
-  <source media="(prefers-color-scheme: dark)" srcset="./assets/metrics/calendar-dark.svg" />
-  <img src="./assets/metrics/calendar-light.svg" width="100%" alt="Bloom calendar: one ink flower per day, with original GitHub contribution counts and levels. Includes total, longest streak, current streak and best day." />
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/ink-v2/metrics/calendar-dark-mobile.svg" />
+  <source media="(max-width: 600px)" srcset="./assets/ink-v2/metrics/calendar-light-mobile.svg" />
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/ink-v2/metrics/calendar-dark.svg" />
+  <img src="./assets/ink-v2/metrics/calendar-light.svg" width="100%" alt="Bloom calendar: one ink flower per day, with original GitHub contribution counts and levels. Includes total, longest streak, current streak and best day." />
 </picture>
 
 <picture>
-  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/metrics/bouquet-dark-mobile.svg" />
-  <source media="(max-width: 600px)" srcset="./assets/metrics/bouquet-light-mobile.svg" />
-  <source media="(prefers-color-scheme: dark)" srcset="./assets/metrics/bouquet-dark.svg" />
-  <img src="./assets/metrics/bouquet-light.svg" width="100%" alt="Language bouquet: public non-fork code-byte shares. Ink flowers, screentone bars, language names and percentages." />
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/ink-v2/metrics/bouquet-dark-mobile.svg" />
+  <source media="(max-width: 600px)" srcset="./assets/ink-v2/metrics/bouquet-light-mobile.svg" />
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/ink-v2/metrics/bouquet-dark.svg" />
+  <img src="./assets/ink-v2/metrics/bouquet-light.svg" width="100%" alt="Language bouquet: public non-fork code-byte shares. Ink flowers, screentone bars, language names and percentages." />
 </picture>
 
 <picture>
-  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/metrics/notes-dark-mobile.svg" />
-  <source media="(max-width: 600px)" srcset="./assets/metrics/notes-light-mobile.svg" />
-  <source media="(prefers-color-scheme: dark)" srcset="./assets/metrics/notes-dark.svg" />
-  <img src="./assets/metrics/notes-light.svg" width="100%" alt="Garden notes: up to five recent public activities from the last 30 days, including dates and repositories." />
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/ink-v2/metrics/notes-dark-mobile.svg" />
+  <source media="(max-width: 600px)" srcset="./assets/ink-v2/metrics/notes-light-mobile.svg" />
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/ink-v2/metrics/notes-dark.svg" />
+  <img src="./assets/ink-v2/metrics/notes-light.svg" width="100%" alt="Garden notes: up to five recent public activities from the last 30 days, including dates and repositories." />
 </picture>
 
-<p align="center"><sub>✧ 一日一輪 · a little ink, a little bloom ✧</sub></p>
+<picture>
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/ink-v2/sections/footer-dark-mobile.svg" />
+  <source media="(max-width: 600px)" srcset="./assets/ink-v2/sections/footer-light-mobile.svg" />
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/ink-v2/sections/footer-dark.svg" />
+  <img src="./assets/ink-v2/sections/footer-light.svg" width="100%" alt="一日一輪 · one day, one flower." />
+</picture>

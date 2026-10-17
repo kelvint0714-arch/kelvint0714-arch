@@ -4,7 +4,7 @@
 
 ## 视觉规则
 
-黑白漫画分镜、自然曲线花瓣、粗细墨线、叶脉排线和局部网点。没有彩色渐变、立体高光或模糊阴影。浅色采用白纸黑墨，深色采用中性黑底浅色墨线。大标题采用哥特/Fraktur 式矢量字形，仓库精确名称、说明、时间、语言和百分比使用清楚的正文。
+黑白漫画分镜、自然曲线花瓣、粗细墨线、叶脉排线和局部网点。没有彩色渐变、立体高光或模糊阴影。浅色采用白纸黑墨，深色也采用近白纸面与黑墨，不反成负片；GitHub 页面外侧背景由 GitHub 自己控制。大标题采用哥特/Fraktur 式矢量字形，仓库精确名称、说明、时间、语言和百分比使用清楚的正文。
 
 - 章节标题：保留 `garden.json` 的章节结构。两种现有章节标题有完整的哥特字形作品，改成其他标题时会使用可读衬线字回退，不会缺字。
 - 仓库：每个公开仓库生成一个带链接的独立分镜卡片。个人网站展示名为 `A Quiet Valley`，ML-practice 展示名为 `Machine Learning`；精确仓库名仍完整保留在卡片及文字索引内，真实仓库没有被重命名。新仓库会自动生成 `Repository` 哥特标题和对应真实名称，不需要手工增补卡片。
@@ -16,9 +16,9 @@
 
 | 模块 | 文件 | 输出 |
 |---|---|---|
-| 章节标题 | `scripts/build_sections.py` | `assets/sections/*.svg` |
-| 贡献、语言和活动 | `scripts/build_metrics.py` | `assets/metrics/*.svg` |
-| 仓库展示 | `scripts/update_repositories.py` | `assets/repos/*.svg` 与 README 的 GARDEN-REPOS 区域 |
+| 章节标题和页脚 | `scripts/build_sections.py` | `assets/ink-v2/sections/*.svg` |
+| 贡献、语言和活动 | `scripts/build_metrics.py` | `assets/ink-v2/metrics/*.svg` |
+| 仓库展示 | `scripts/update_repositories.py` | `assets/ink-v2/repos/*.svg` 与 README 的 GARDEN-REPOS 区域 |
 | 共用漫画绘图 | `scripts/garden/manga.py` | 墨线花、网点、分镜和字体布局 |
 | 固定标题字形 | `scripts/garden/manga_lettering.json` | 已排版好的整段标题路径；不是字体文件 |
 | 真实数据 | `scripts/garden/data.py` | 保持原文件不变 |
@@ -50,4 +50,16 @@ python3 scripts/update_repositories.py
 
 代码只改变呈现方式，不修改仓库描述、星标、语言数据、贡献计数或事件。预览中的 `this` 与 `Event Horizon …` 是数据快照里的原始仓库描述，不是重新编写的新介绍。后续修改 GitHub 仓库描述后，自动刷新会显示新值。
 
-本次本地预览使用仓库已有快照，时间为 `2026-10-17T09:47:03Z`。用户头像图片未成功拉取，本版遵循用户明确指定的黑白漫画与艺术哥特体方向，尚未逐项匹配头像笔触。
+本次本地预览使用仓库已有快照，时间为 `2026-10-17T09:47:03Z`。本次已读取用户上传的头像原图，以粗细墨线、实黑、留白和网点作为参考；不将头像原图添加到仓库，也不改变账户头像。预览数据是先前项目快照，不代表新的实时统计；本包不包含 data/snapshot.json。
+
+## INK V2：必须整套应用
+
+所有自定义图均位于 `assets/ink-v2/`。两组标题、每张仓库卡片、贡献日历、语言花束、活动记录和页脚全部使用此目录；只有原视频及静态封面继续位于 `assets/banner*.webp`。
+
+这里没有用灰度滤镜处理旧图。花朵重新用路径绘制；墨黑叶片和缎带提供实黑层次；花瓣以线条、网点和不透明遮叠表现前后；进度条使用黑墨、网点及排线；活动条目采用分镜式对白框，而非有立体高光的胶囊卡片。
+
+语言花束在手机版仍显示完整插画。旧 `assets/metrics/`、`assets/sections/`、`assets/repos/` 保留用于回滚，但新的 README 不再引用它们。不要删除视频文件，也不要将此更新应用到独立网站仓库。
+
+新加 `scripts/test_ink_edition.py`，防止以后仅部分组件改为线稿、或资源引用回到旧目录。标题的固定矢量作品已包含在包内，无字体文件。
+
+本地验证：26 项单元测试、32 张 SVG 的结构与中性灰颜色校验、四版日历逐日字段比对，以及 12 组桌面/手机与主题组合检查；未在用户手机实机或线上 GitHub 页面验证发布效果。现有数据辅助模块在测试环境中与当前仓库 blob `51830ec16893cfca324d22fd40b989a875373e17` 完全一致。

@@ -12,7 +12,7 @@ def build(theme: str, section: dict, index: int):
 
 def main() -> int:
     config=json.loads((ROOT/'garden.json').read_text(encoding='utf-8'))
-    out=ROOT/'assets'/'sections';out.mkdir(parents=True,exist_ok=True)
+    out=ROOT/'assets'/'ink-v2'/'sections';out.mkdir(parents=True,exist_ok=True)
     for index,section in enumerate(config['sections']):
         for mobile in (False,True):
             for theme in ('light','dark'):
@@ -20,5 +20,9 @@ def main() -> int:
                 path=out/f"header-{section['id']}-{theme}{suffix}.svg"
                 path.write_text(manga.header(theme,section,index,mobile).render(),encoding='utf-8')
                 print(path.name)
+    for mobile in (False,True):
+        for theme in ('light','dark'):
+            suffix='-mobile' if mobile else ''
+            (out/f'footer-{theme}{suffix}.svg').write_text(manga.footer(theme,mobile).render(),encoding='utf-8')
     return 0
 if __name__=='__main__':sys.exit(main())

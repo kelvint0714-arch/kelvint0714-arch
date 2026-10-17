@@ -9,7 +9,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parent))
 from garden import data, manga
 ROOT=Path(__file__).resolve().parent.parent
 SNAPSHOT=ROOT/'data'/'snapshot.json'
-OUT=ROOT/'assets'/'metrics'
+OUT=ROOT/'assets'/'ink-v2'/'metrics'
 
 def describe(event: dict) -> str:
     kind, p = event["type"], event.get("payload") or {}

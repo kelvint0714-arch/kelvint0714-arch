@@ -59,7 +59,7 @@ def cards(repos: list[dict],out: Path) -> str:
                 generated.add(target.name)
         tags=' / '.join(x for x in [repo.get('language') or 'Language not specified','fork' if repo.get('fork') else '', 'archived' if repo.get('archived') else ''] if x)
         alt=f"{name}. {repo.get('description') or 'No description provided.'} {tags}. {repo.get('stargazers_count') or 0} stars. Updated {(repo.get('pushed_at') or '—')[:10]}. Open repository."
-        parts.append(manga.picture(f'./assets/repos/{slug}',alt,href=link))
+        parts.append(manga.picture(f'./assets/ink-v2/repos/{slug}',alt,href=link))
         plain.append(f'<p><a href="{manga.esc(link)}"><strong>{manga.esc(name)}</strong></a><br />{manga.esc(repo.get("description") or "No description provided.")}<br /><sub>{manga.esc(tags)}</sub></p>')
     # Remove only obsolete panels with this generator's own filename format.
     for previous in out.glob('*.svg'):
@@ -74,7 +74,7 @@ def main() -> int:
     repos=json.loads(SNAPSHOT.read_text(encoding='utf-8'))['repos'] if SNAPSHOT.exists() else data.fetch_repos(config['user'])
     repos=[r for r in repos if not r.get('private') and r.get('name','').lower()!=config['user'].lower()]
     readme=README.read_text(encoding='utf-8')
-    updated=replace_block(readme,cards(repos,ROOT/'assets'/'repos'))
+    updated=replace_block(readme,cards(repos,ROOT/'assets'/'ink-v2'/'repos'))
     if updated!=readme:README.write_text(updated,encoding='utf-8')
     print(f'README.md: {len(repos)} linked manga repository panels')
     return 0
