@@ -2,7 +2,9 @@ name: Tend the garden
 
 on:
   schedule:
-    - cron: "23 22 * * *" # 06:23 Asia/Shanghai
+    # Every 15 minutes, off the top of the hour when GitHub's scheduler is busiest.
+    # A run only commits when the public data actually changed.
+    - cron: "7,22,37,52 * * * *"
   workflow_dispatch:
   push:
     branches: [main]
@@ -60,4 +62,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Refresh the garden"
-          git push
+          # Files uploaded on github.com while this ran would reject a plain push; replay on top and retry.
+          for attempt in 1 2 3; do
+            if git push; then
+              exit 0
+            fi
+            git pull --rebase
+          done
+          exit 1

@@ -68,12 +68,19 @@ def recent_notes(snap: dict, tz: ZoneInfo, now: datetime, limit: int = 5) -> lis
             note["text"] = f"Pushed {note['times']} times to {note['base'][len('Pushed to '):]}"
     return notes
 
+def same_data(a: dict, b: dict) -> bool:
+    """Equal apart from when they were fetched."""
+    return {k: v for k, v in a.items() if k != "fetched_at"} == {k: v for k, v in b.items() if k != "fetched_at"}
+
+
 def load_snapshot(user: str, offline: bool) -> dict:
     if not offline:
         try:
             snap = data.collect(user)
             SNAPSHOT.parent.mkdir(exist_ok=True)
-            SNAPSHOT.write_text(json.dumps(snap, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+            # Only rewrite when the public data moved, so frequent runs don't commit a new timestamp each time.
+            if not SNAPSHOT.exists() or not same_data(json.loads(SNAPSHOT.read_text(encoding="utf-8")), snap):
+                SNAPSHOT.write_text(json.dumps(snap, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
             return snap
         except Exception as error:  # keep the last good cards rather than failing the run
             if not SNAPSHOT.exists():

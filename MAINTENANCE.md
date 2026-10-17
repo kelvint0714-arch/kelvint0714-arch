@@ -63,3 +63,9 @@ python3 scripts/update_repositories.py
 新加 `scripts/test_ink_edition.py`，防止以后仅部分组件改为线稿、或资源引用回到旧目录。标题的固定矢量作品已包含在包内，无字体文件。
 
 本地验证：26 项单元测试、32 张 SVG 的结构与中性灰颜色校验、四版日历逐日字段比对，以及 12 组桌面/手机与主题组合检查；未在用户手机实机或线上 GitHub 页面验证发布效果。现有数据辅助模块在测试环境中与当前仓库 blob `51830ec16893cfca324d22fd40b989a875373e17` 完全一致。
+
+## 自动刷新
+
+[Tend the garden](.github/workflows/garden.yml) 每 15 分钟运行一次（GitHub 的定时任务偶尔会延后几分钟），也会在修改 `garden.json`、`scripts/`、`fonts/` 后立即运行，或在 Actions 页面手动运行。新的公开仓库会自动生成卡片，删除的仓库会移除卡片；新提交、新语言和新动态会更新花暦、言語の花束和花便り。
+
+只有公开数据真的变化时才会提交。只更换了获取时间的快照不会写入，所以没有新动态时不会产生 "Refresh the garden" 提交。如果你在 github.com 上传文件时正好碰上刷新，工作流会先合并你的提交再推送。

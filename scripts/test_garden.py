@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import json
 import sys
+import tempfile
 import unittest
 import xml.dom.minidom
 from datetime import date, datetime, timezone
 from pathlib import Path
+from unittest import mock
 from zoneinfo import ZoneInfo
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -77,6 +79,25 @@ class NotesTest(unittest.TestCase):
         now = datetime(2026, 10, 15, tzinfo=timezone.utc)
         notes = build_metrics.recent_notes(snapshot(), ZoneInfo("Asia/Shanghai"), now)
         self.assertEqual([n["text"] for n in notes], ["Pushed 2 times to main", "Starred"])
+
+
+class SnapshotTest(unittest.TestCase):
+    def fetch_into(self, stored: dict, fetched: dict) -> dict:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "snapshot.json"
+            path.write_text(json.dumps(stored), encoding="utf-8")
+            with mock.patch.object(build_metrics, "SNAPSHOT", path), \
+                    mock.patch.object(build_metrics.data, "collect", return_value=fetched):
+                build_metrics.load_snapshot("someone", offline=False)
+            return json.loads(path.read_text(encoding="utf-8"))
+
+    def test_a_new_timestamp_alone_leaves_the_file_alone(self):
+        stored = snapshot()
+        self.assertEqual(self.fetch_into(stored, {**stored, "fetched_at": "2026-10-16T00:00:00Z"}), stored)
+
+    def test_new_public_data_is_saved(self):
+        fetched = {**snapshot(), "fetched_at": "2026-10-16T00:00:00Z", "languages": {"Rust": 10}}
+        self.assertEqual(self.fetch_into(snapshot(), fetched), fetched)
 
 
 class RepositoriesTest(unittest.TestCase):
