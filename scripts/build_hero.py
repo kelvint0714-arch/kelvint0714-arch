@@ -193,9 +193,27 @@ def build(theme: str, config: dict) -> Doc:
         motes.append(place(x, y, flora.mote(pal, rng, 2.5 + rng.uniform(0, 4))))
     scene.append("".join(motes))
 
+    scene.append(foreground(doc, pal))
+    vignette = doc.radial([(0, pal["shadow"], 0), (.62, pal["shadow"], 0),
+                           (1, pal["shadow"], .14 if pal["scheme"] == "light" else .42)], r=.72)
+    scene.append(f'<rect width="{W}" height="{H}" fill="url(#{vignette})"/>')
     doc.add(f'<g clip-path="url(#{clip})">{"".join(scene)}</g>')
+    bevel = doc.linear([(0, "#FFFFFF", .95 if pal["scheme"] == "light" else .3), (.12, "#FFFFFF", 0),
+                        (.88, pal["shadow"], 0), (1, pal["shadow"], .22 if pal["scheme"] == "light" else .5)])
+    doc.add(f'<rect x="1.5" y="1.5" width="{W - 3}" height="{H - 3}" rx="22.5" fill="none" stroke="url(#{bevel})" stroke-width="3"/>')
     doc.add(f'<rect x=".5" y=".5" width="{W - 1}" height="{H - 1}" rx="23.5" fill="none" stroke="{pal["border"]}"/>')
     return doc
+
+
+def foreground(doc: Doc, pal: dict) -> str:
+    """Large petals close to the lens, out of focus: soft-edged and translucent."""
+    soft = doc.radial([(0, pal["sakura"][3], .75), (.55, pal["sakura"][3], .45), (1, pal["sakura"][3], 0)], cx=.5, cy=.6, r=.6)
+    parts = []
+    for x, y, size, angle, delay in [(-6, 336, 74, 38, 0), (1262, 54, 60, -150, -3), (1214, 418, 68, -24, -5), (58, -14, 46, 160, -2)]:
+        petal = f'<path d="{flora.petal_d("notch", size, size * .64)}" transform="translate(0 {n(size / 2)})" fill="url(#{soft})"/>'
+        body = f'<g class="bob" style="animation-delay:{delay}s;animation-duration:9s">{petal}</g>'
+        parts.append(place(x, y, wrap("shade", body, 3.8), rotate=angle))
+    return "".join(parts)
 
 
 def text_block(doc: Doc, pal: dict, hero: dict) -> str:
@@ -224,6 +242,18 @@ def text_block(doc: Doc, pal: dict, hero: dict) -> str:
          (1, pal["sakura"][0] if light else pal["sakura"][2], 1)],
         x1=CX - name_width / 2, y1=0, x2=CX + name_width / 2, y2=0, user=True,
     )
+    # the extrusion: copies of the name stepping back to the lower right, revealed once the ink dries
+    body, _ = doc.text([(hero["title"], "serif-bold-italic", name_size)], CX, 214, anchor="middle", inline=True)
+    rid = doc.uid("name")
+    doc.defs.append(f'<g id="{rid}">{body}</g>')
+    side = ([pal["kikyo"][3], pal["kikyo"][2], pal["kikyo"][1], pal["kikyo"][0]] if light
+            else [pal["kikyo"][1], pal["kikyo"][0], "#2A2768", "#1C1A4A"])
+    depth = 7
+    extrusion = [f'<use href="#{rid}" transform="translate(9 13)" fill="{pal["shadow"]}" fill-opacity=".16"/>']
+    for i in range(depth, 0, -1):
+        color = side[min(len(side) - 1, (i - 1) * len(side) // depth)]
+        extrusion.append(f'<use href="#{rid}" transform="translate({n(.8 * i)} {n(1.0 * i)})" fill="{color}"/>')
+    parts.append(wrap("shade", "".join(extrusion), 2.4))
     name, _ = doc.text(
         [(hero["title"], "serif-bold-italic", name_size)], CX, 214, anchor="middle", inline=True,
         glyph_class="nm", glyph_delay=(1.2, .11), glyph_attrs=' pathLength="1"',

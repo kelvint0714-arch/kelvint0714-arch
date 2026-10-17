@@ -14,7 +14,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from garden import flora  # noqa: E402
+from garden import depth, flora  # noqa: E402
 from garden.flora import place, wrap  # noqa: E402
 from garden.palette import THEMES  # noqa: E402
 from garden.svg import Doc, n  # noqa: E402
@@ -35,30 +35,35 @@ def build(theme: str, section: dict, index: int) -> Doc:
     flora.install(doc)
     parts = []
 
-    # pill tag
+    # pill tag, pressed out of the page
     pill_text = f"SECTION {section['number']}"
-    tag, tag_w = doc.text([(pill_text, "sans-bold", 16)], 0, 0, spacing=3.5)
+    _, tag_w = doc.text([(pill_text, "sans-bold", 16)], 0, 0, spacing=3.5)
     pill_w = tag_w + 48
-    grad = doc.linear([(0, pal["kikyo"][1], 1), (1, pal["sakura"][1], 1)], x2=1, y2=0)
-    tag, _ = doc.text([(pill_text, "sans-bold", 16)], 2 + pill_w / 2, 37, anchor="middle", spacing=3.5,
+    tag, _ = doc.text([(pill_text, "sans-bold", 16)], 2 + pill_w / 2, 36, anchor="middle", spacing=3.5,
                       attrs=' fill="#FFFFFF"')
-    pill = f'<rect x="2" y="12" width="{n(pill_w)}" height="36" rx="18" fill="url(#{grad})"/>{tag}'
-    pill += place(pill_w + 24, 30, flora.flower(doc, pal, "kikyo", 10, .5, hue="kikyo"))
+    pill = depth.button(doc, pal, 2, 10, pill_w, 36) + tag
+    pill += place(pill_w + 26, 30, flora.flower(doc, pal, "kikyo", 10, .5, hue="kikyo"))
     parts.append(wrap("fadeup", pill, .1))
 
-    # title and its Japanese name
-    title, title_w = doc.text([(section["title"], "serif-bold", 66)], 0, 108, spacing=1.5,
-                              attrs=f' fill="{pal["ink"]}"')
-    ja, ja_w = doc.text([(section["title_ja"], "cjk-bold", 38)], title_w + 26, 105, spacing=5,
-                        attrs=f' fill="{pal["kikyo"][1] if light else pal["kikyo"][3]}"')
+    # extruded title and its Japanese name
+    side = [pal["kikyo"][3], pal["kikyo"][2], pal["kikyo"][1]] if light else [pal["kikyo"][1], pal["kikyo"][0], "#2A2768"]
+    title, title_w = depth.text3d(doc, pal, [(section["title"], "serif-bold", 66)], 0, 106, spacing=1.5,
+                                  face=pal["ink"], side=side, depth=5)
+    ja_side = [pal["sakura"][2], pal["sakura"][1], pal["sakura"][0]] if light else [pal["sakura"][1], pal["sakura"][0], "#6B2E55"]
+    ja, ja_w = depth.text3d(doc, pal, [(section["title_ja"], "cjk-bold", 38)], title_w + 30, 103, spacing=5,
+                            face=pal["kikyo"][1] if light else pal["kikyo"][4], side=ja_side, depth=4, step=(.6, .8))
     parts.append(wrap("fadeup", title + ja, .3))
 
     # a cherry sprig drawn under the title, flowering at its tip
     end = max(720.0, title_w + ja_w + 120)
     vine = f"M2 126C{n(end * .25)} 118 {n(end * .5)} 134 {n(end * .75)} 124S{n(end - 30)} 120 {n(end)} 126"
     sprig = [
-        f'<path class="grow" pathLength="1" d="{vine}" fill="none" stroke="{pal["bark"]}" stroke-width="2.2" '
-        f'stroke-linecap="round"{flora.delay_style(.6)}/>'
+        f'<path class="grow" pathLength="1" d="{vine}" transform="translate(3 7)" fill="none" stroke="{pal["shadow"]}" '
+        f'stroke-opacity=".12" stroke-width="3.4" stroke-linecap="round"{flora.delay_style(.6)}/>',
+        f'<path class="grow" pathLength="1" d="{vine}" fill="none" stroke="{pal["bark"]}" stroke-width="2.4" '
+        f'stroke-linecap="round"{flora.delay_style(.6)}/>',
+        f'<path class="grow" pathLength="1" d="{vine}" transform="translate(-.4 -.8)" fill="none" stroke="#FFFFFF" '
+        f'stroke-opacity=".35" stroke-width=".8" stroke-linecap="round"{flora.delay_style(.6)}/>',
     ]
     for k in range(5):
         x = end * (.16 + k * .17)
@@ -79,12 +84,13 @@ def build(theme: str, section: dict, index: int) -> Doc:
     # seed-packet label on the right
     label, label_w = doc.text([(section["flora"], "sans-bold", 19)], 0, 0, spacing=2.4)
     box_w = label_w + 56
-    x0 = W - 6 - box_w
+    x0 = W - 14 - box_w
     label, _ = doc.text([(section["flora"], "sans-bold", 19)], x0 + box_w / 2, 105, anchor="middle", spacing=2.4,
                         attrs=f' fill="{pal["ink"]}"')
     packet = (
-        f'<rect x="{n(x0)}" y="74" width="{n(box_w)}" height="50" rx="12" fill="{pal["card"]}" fill-opacity=".7" '
-        f'stroke="{pal["kikyo"][3]}" stroke-dasharray="5 4"/>{label}'
+        depth.raised(doc, pal, x0, 72, box_w, 52, rx=12, lift=.7)
+        + f'<rect x="{n(x0 + 6)}" y="78" width="{n(box_w - 12)}" height="40" rx="8" fill="none" '
+          f'stroke="{pal["kikyo"][3]}" stroke-dasharray="5 4"/>{label}'
     )
     parts.append(wrap("fadeup", packet, .5))
     for k in range(6):

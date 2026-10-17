@@ -28,6 +28,9 @@ LIGHT = {
     "bark": "#7B5B57",
     "vine": "#8A7A63",
     "wisp": "#9A9FE6",
+    "shadow": "#2A2350",
+    "planter": ["#FBF7FF", "#E9E1F5", "#D9CFEA", "#C9BDE0"],
+    "soil": ["#EDE6DF", "#E2D8CE"],
 }
 
 DARK = {
@@ -53,6 +56,9 @@ DARK = {
     "bark": "#9A7A73",
     "vine": "#A08E75",
     "wisp": "#AEB4F4",
+    "shadow": "#03040C",
+    "planter": ["#3A3560", "#2A2650", "#211D40", "#1A1734"],
+    "soil": ["#2B2541", "#241F38"],
 }
 
 THEMES = {"light": LIGHT, "dark": DARK}

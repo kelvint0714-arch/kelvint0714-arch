@@ -48,6 +48,8 @@ ANIM_CSS = (
     "@keyframes wisp{0%{stroke-dashoffset:.3;opacity:0}15%{opacity:.8}75%{opacity:.5}100%{stroke-dashoffset:-1;opacity:0}}"
     ".flip{animation:flip 2.2s ease-in-out infinite}"
     "@keyframes flip{0%,100%{transform:none}50%{transform:scale(.25,1)}}"
+    ".shade{animation:shade 1.2s ease both}"
+    "@keyframes shade{from{opacity:0}to{opacity:1}}"
     ".fadeup{animation:fadeup 1.4s cubic-bezier(.22,1,.36,1) both}"
     "@keyframes fadeup{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}"
 )
@@ -122,21 +124,36 @@ def petal_d(kind: str, length: float, width: float) -> str:
     return f"M0 0C{n(w)} {n(-.15*l)} {n(1.12*w)} {n(-.7*l)} 0 {n(-l)}C{n(-1.12*w)} {n(-.7*l)} {n(-w)} {n(-.15*l)} 0 0Z"
 
 
+def petal_shape_ref(doc: Doc, kind: str, length: float, width: float) -> str:
+    """The bare petal outline, used for silhouettes."""
+    key = f"shape:{kind}:{n(length)}:{n(width)}"
+    pid = "s" + hashlib.md5(key.encode()).hexdigest()[:7]
+    if doc.once(key):
+        doc.defs.append(f'<path id="{pid}" d="{petal_d(kind, length, width)}"/>')
+    return pid
+
+
 def petal_ref(doc: Doc, kind: str, length: float, width: float) -> str:
+    """A shaded petal: outline (filled by the caller), a sheen on one flank and a shade on the other."""
     key = f"petal:{kind}:{n(length)}:{n(width)}"
     pid = "p" + hashlib.md5(key.encode()).hexdigest()[:7]
     if doc.once(key):
-        shape = f'<path d="{petal_d(kind, length, width)}"/>'
+        l, w = length, width
+        shape = petal_shape_ref(doc, kind, length, width)
+        parts = [f'<use href="#{shape}"/>']
         if kind == "kikyo":
-            l, w = length, width
             veins = (
                 f"M0 {n(-.12*l)}L0 {n(-.9*l)}M{n(.08*w)} {n(-.15*l)}Q{n(.5*w)} {n(-.5*l)} {n(.3*w)} {n(-.8*l)}"
                 f"M{n(-.08*w)} {n(-.15*l)}Q{n(-.5*w)} {n(-.5*l)} {n(-.3*w)} {n(-.8*l)}"
             )
-            shape = f'<g id="{pid}">{shape}<path d="{veins}" fill="none" stroke-opacity=".5" stroke-width=".28"/></g>'
-            doc.defs.append(shape)
-        else:
-            doc.defs.append(f'<path id="{pid}" d="{petal_d(kind, length, width)}"/>')
+            parts.append(f'<path d="{veins}" fill="none" stroke-opacity=".5" stroke-width=".28"/>')
+        parts.append(
+            f'<path d="{petal_d("pointed", .7 * l, .3 * w)}" transform="translate({n(.24 * w)} {n(-.14 * l)})" '
+            f'fill="#FFFFFF" fill-opacity=".32" stroke="none"/>'
+            f'<path d="{petal_d("pointed", .62 * l, .26 * w)}" transform="translate({n(-.34 * w)} {n(-.1 * l)})" '
+            f'fill="#000000" fill-opacity=".07" stroke="none"/>'
+        )
+        doc.defs.append(f'<g id="{pid}">{"".join(parts)}</g>')
     return pid
 
 
@@ -190,11 +207,18 @@ def _stops(pal: dict, kind: str, hue: str) -> list[tuple[float, str, float]]:
 
 
 def _layers(doc: Doc, pal: dict, kind: str, hue: str, delay: float | None, stroke_width: float) -> str:
-    """Petal layers at UNIT radius; `delay` None means no per-petal animation."""
+    """Petal layers at UNIT radius; `delay` None means no per-petal animation.
+
+    Each inner layer casts a soft shadow on the layer beneath it.
+    """
     grad = doc.memo(f"fgrad:{kind}:{hue}", lambda: doc.radial(_stops(pal, kind, hue), cx=0, cy=0, r=UNIT, user=True))
     layers = []
     for index, (count, lf, wf, shape, offset) in enumerate(FLOWERS[kind]):
         pid = petal_ref(doc, shape, UNIT * lf, UNIT * wf)
+        if index:
+            sil = _silhouette(doc, kind, index)
+            shadow = f'<use href="#{sil}" transform="translate(.5 1.1) scale(1.07)" fill="{pal["shadow"]}" fill-opacity=".2"/>'
+            layers.append(shadow if delay is None else wrap("shade", shadow, delay + .2 * index + .4))
         petals = []
         for j in range(count):
             angle = offset + j * 360 / count
@@ -207,18 +231,48 @@ def _layers(doc: Doc, pal: dict, kind: str, hue: str, delay: float | None, strok
     return "".join(layers)
 
 
+def _silhouette(doc: Doc, kind: str, index: int = 0) -> str:
+    """One petal layer as bare outlines, for shadows and the light overlay."""
+    def build() -> str:
+        count, lf, wf, shape, offset = FLOWERS[kind][index]
+        ref = petal_shape_ref(doc, shape, UNIT * lf, UNIT * wf)
+        sid = doc.uid("sil")
+        body = "".join(f'<use href="#{ref}" transform="rotate({n(offset + j * 360 / count)})"/>' for j in range(count))
+        doc.defs.append(f'<g id="{sid}">{body}</g>')
+        return sid
+    return doc.memo(f"sil:{kind}:{index}", build)
+
+
+def _light(doc: Doc, pal: dict) -> str:
+    """Light from the upper left across a whole flower head."""
+    dark = .16 if pal["scheme"] == "light" else .3
+    return doc.memo("light", lambda: doc.linear(
+        [(0, "#FFFFFF", .42), (.42, "#FFFFFF", 0), (.58, "#000000", 0), (1, "#000000", dark)],
+        x1=-UNIT, y1=-UNIT, x2=UNIT, y2=UNIT, user=True))
+
+
+def head_shadow(doc: Doc, pal: dict, r: float) -> str:
+    """A soft shadow a flower head casts on whatever lies behind it."""
+    grad = doc.memo("headshadow", lambda: doc.radial(
+        [(0, pal["shadow"], .32 if pal["scheme"] == "light" else .5), (.6, pal["shadow"], .12), (1, pal["shadow"], 0)]))
+    return f'<ellipse cx="{n(r * .2)}" cy="{n(r * .32)}" rx="{n(r * 1.08)}" ry="{n(r * .86)}" fill="url(#{grad})"/>'
+
+
 def flower_symbol(doc: Doc, pal: dict, kind: str, hue: str) -> str:
-    """A finished flower at UNIT radius, defined once and reused with <use>."""
+    """A finished, lit flower at UNIT radius, defined once and reused with <use>."""
     def build() -> str:
         sid = doc.uid("fl")
-        doc.defs.append(f'<g id="{sid}">{_layers(doc, pal, kind, hue, None, .6)}{flower_center(pal, kind, UNIT)}</g>')
+        overlay = f'<use href="#{_silhouette(doc, kind)}" fill="url(#{_light(doc, pal)})"/>'
+        doc.defs.append(
+            f'<g id="{sid}">{_layers(doc, pal, kind, hue, None, .6)}{overlay}{flower_center(pal, kind, UNIT)}</g>'
+        )
         return sid
     return doc.memo(f"flower:{kind}:{hue}", build)
 
 
 def flower(doc: Doc, pal: dict, kind: str, r: float, delay: float, *, hue: str = "rose",
-           tilt: float = 0.0, squash: float = 1.0, still: bool = False) -> str:
-    """A flower head about the origin.
+           tilt: float = 0.0, squash: float = 1.0, still: bool = False, shadow: bool = True) -> str:
+    """A lit flower head about the origin, lifted off the page by its own shadow.
 
     Large heads open petal by petal; small ones are a single reused symbol that
     unfolds as a whole, which keeps busy scenes cheap to repaint. `still`
@@ -232,12 +286,15 @@ def flower(doc: Doc, pal: dict, kind: str, r: float, delay: float, *, hue: str =
         transform.append(f"scale(1 {n(squash)})")
     transform.append(f"scale({n(s, 3)})")
     attr = f' transform="{" ".join(transform)}"'
+    cast = head_shadow(doc, pal, r) if shadow and r >= 5 else ""
     if still or r < PETAL_ANIMATION_MIN_R:
-        head = f'<use href="#{flower_symbol(doc, pal, kind, hue)}"{attr}/>'
-        return head if still else wrap("unfurl", head, delay)
-    center = wrap("pop", flower_center(pal, kind, UNIT), delay + .2 * len(FLOWERS[kind]) + .25)
-    head = f'<g{attr}>{_layers(doc, pal, kind, hue, delay, .6 / s)}{center}</g>'
-    return wrap("unfurl", head, delay)
+        head = cast + f'<use href="#{flower_symbol(doc, pal, kind, hue)}"{attr}/>'
+        return f"<g>{head}</g>" if still else wrap("unfurl", head, delay)
+    opened = delay + .2 * len(FLOWERS[kind])
+    overlay = wrap("shade", f'<use href="#{_silhouette(doc, kind)}" fill="url(#{_light(doc, pal)})"/>', opened)
+    center = wrap("pop", flower_center(pal, kind, UNIT), opened + .25)
+    head = f'<g{attr}>{_layers(doc, pal, kind, hue, delay, .6 / s)}{overlay}{center}</g>'
+    return wrap("unfurl", wrap("shade", cast, opened) + head, delay)
 
 
 def flower_center(pal: dict, kind: str, r: float) -> str:
