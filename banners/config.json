@@ -1,14 +1,14 @@
 {
-  "source": "",
-  "start": 0,
+  "source": "clip.mp4",
+  "start": 0.8,
   "duration": 8,
-  "fps": 12,
+  "fps": 15,
   "width": 960,
   "aspect": 1.7778,
   "focus_y": 0.5,
-  "quality": 70,
-  "poster_at": 2.0,
+  "quality": 72,
+  "poster_at": 3.2,
   "loop_blend": 0.6,
-  "alt": "A short anime clip in the spirit of 薫る花は凛と咲く, looping at the top of the garden.",
+  "alt": "Kelvin's opening clip: a close-up of an eye, a girl with long dark hair in a warm café, then her smile, looping at the top of the garden.",
   "credit": ""
 }

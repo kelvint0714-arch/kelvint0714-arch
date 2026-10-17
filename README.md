@@ -1,4 +1,8 @@
 <!-- BANNER:START -->
+<picture>
+  <source media="(prefers-reduced-motion: reduce)" srcset="./assets/banner-static.webp" />
+  <img src="./assets/banner.webp" width="100%" alt="Kelvin's opening clip: a close-up of an eye, a girl with long dark hair in a warm café, then her smile, looping at the top of the garden." />
+</picture>
 <!-- BANNER:END -->
 
 <picture>
