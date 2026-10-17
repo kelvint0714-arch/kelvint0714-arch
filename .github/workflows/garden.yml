@@ -40,10 +40,8 @@ jobs:
       - name: Check the builders
         run: python -m unittest discover -s scripts -p "test_*.py"
 
-      - name: Draw the opening panel and section headers
-        run: |
-          python scripts/build_hero.py
-          python scripts/build_sections.py
+      - name: Draw the section headers
+        run: python scripts/build_sections.py
 
       - name: Draw the bloom log from public data
         env:

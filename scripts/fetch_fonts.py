@@ -25,7 +25,6 @@ LATIN = {
     "CormorantGaramond-Medium.ttf": ("Cormorant Garamond", "wght@500", "cormorantgaramond"),
     "CormorantGaramond-SemiBold.ttf": ("Cormorant Garamond", "wght@600", "cormorantgaramond"),
     "CormorantGaramond-MediumItalic.ttf": ("Cormorant Garamond", "ital,wght@1,500", "cormorantgaramond"),
-    "CormorantGaramond-SemiBoldItalic.ttf": ("Cormorant Garamond", "ital,wght@1,600", "cormorantgaramond"),
     "Montserrat-Medium.ttf": ("Montserrat", "wght@500", "montserrat"),
     "Montserrat-SemiBold.ttf": ("Montserrat", "wght@600", "montserrat"),
 }

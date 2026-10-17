@@ -1,10 +1,3 @@
-<picture>
-  <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="./assets/hero-static-dark.svg" />
-  <source media="(prefers-reduced-motion: reduce)" srcset="./assets/hero-static-light.svg" />
-  <source media="(prefers-color-scheme: dark)" srcset="./assets/hero-dark.svg" />
-  <img src="./assets/hero-light.svg" width="100%" alt="Kelvin Tang's garden: kikyo bellflowers, lavender and cherry branches bloom around the name Kelvin Tang, the line 薫る花は凛と咲く and the motto “Braving the storm, building a stairway to the sky.” Sakura petals drift down." />
-</picture>
-
 <!-- BANNER:START -->
 <!-- BANNER:END -->
 

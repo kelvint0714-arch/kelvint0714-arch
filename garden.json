@@ -2,15 +2,6 @@
   "user": "kelvint0714-arch",
   "name": "Kelvin Tang",
   "timezone": "Asia/Shanghai",
-  "hero": {
-    "eyebrow": "WELCOME TO MY GARDEN",
-    "title": "Kelvin Tang",
-    "verse": "薫る花は凛と咲く",
-    "motto": "Braving the storm, building a stairway to the sky.",
-    "corner": "KELVIN とう",
-    "corner_sub": "KIKYO GARDEN · 桔梗の庭",
-    "footer": "IN FULL BLOOM · SINCE 2025"
-  },
   "sections": [
     {
       "id": "garden",

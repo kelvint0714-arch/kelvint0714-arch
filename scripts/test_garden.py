@@ -12,7 +12,6 @@ from zoneinfo import ZoneInfo
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import build_hero  # noqa: E402
 import build_metrics  # noqa: E402
 import build_sections  # noqa: E402
 import update_repositories  # noqa: E402
@@ -99,11 +98,10 @@ class ImagesTest(unittest.TestCase):
         self.assertIn("prefers-reduced-motion", markup)
 
     def test_builders_write_well_formed_svg(self):
-        config = json.loads((build_hero.ROOT / "garden.json").read_text(encoding="utf-8"))
-        hero = build_hero.build("dark", config)
-        self.assert_svg(hero.render(animated=True))
-        self.assertNotIn("@keyframes", hero.render(animated=False))
-        self.assert_svg(build_sections.build("light", config["sections"][0], 0).render())
+        config = json.loads((build_sections.ROOT / "garden.json").read_text(encoding="utf-8"))
+        header = build_sections.build("dark", config["sections"][0], 0)
+        self.assert_svg(header.render(animated=True))
+        self.assertNotIn("@keyframes", header.render(animated=False))
         snap = snapshot()
         now = datetime(2026, 10, 15, tzinfo=timezone.utc)
         for doc in (build_metrics.calendar_card("light", snap), build_metrics.bouquet_card("dark", snap),

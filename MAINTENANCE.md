@@ -6,8 +6,7 @@
 
 | 部分 | 脚本 | 输出 |
 | :--- | :--- | :--- |
-| 开场花园（动画 + 静止帧） | `scripts/build_hero.py` | `assets/hero-*.svg` |
-| 视频横幅 | `scripts/build_banner.py` | `assets/banner.webp`、`assets/banner-static.webp` |
+| 页首视频横幅 | `scripts/build_banner.py` | `assets/banner.webp`、`assets/banner-static.webp` |
 | 分节标题 | `scripts/build_sections.py` | `assets/sections/*.svg` |
 | 花暦 / 言語の花束 / 花便り | `scripts/build_metrics.py` | `assets/metrics/*.svg`、`data/snapshot.json` |
 | 公开仓库表 | `scripts/update_repositories.py` | `README.md` 中 `GARDEN-REPOS` 标记之间 |
@@ -18,7 +17,7 @@
 
 ## 修改文字
 
-文字都在 `garden.json`：名字、日文标语、座右铭、分节标题。改了日文后先运行一次：
+分节标题的文字在 `garden.json`。改了日文后先运行一次：
 
 ```bash
 python3 scripts/fetch_fonts.py
@@ -27,13 +26,15 @@ python3 scripts/fetch_fonts.py
 它会从 Google Fonts 重新下载只含所需汉字/假名的 Noto Serif JP 子集（字体均为 OFL 许可，许可文本在 `fonts/`）。然后重新生成：
 
 ```bash
-python3 scripts/build_hero.py && python3 scripts/build_sections.py
+python3 scripts/build_sections.py
 ```
 
-## 视频横幅
+## 页首视频横幅
+
+主页最上方是你提供的视频片段，转换成循环播放的动图。
 
 1. 把视频片段（mp4 / mov / webm）放进 `banners/`。视频本身不会提交到仓库（见 `.gitignore`），只提交转换后的图片。
-2. 按需修改 `banners/config.json`：`start`（起始秒）、`duration`（时长）、`fps`、`width`、`aspect`（宽高比，默认 2.4）、`focus_y`（裁切的上下位置，0 顶部 – 1 底部）、`poster_at`（静止帧取第几秒）、`alt`（图片说明）、`credit`（显示在横幅下方的出处，比如原视频作者）。
+2. 按需修改 `banners/config.json`：`start`（起始秒）、`duration`（时长）、`fps`、`width`、`aspect`（宽高比，现在是 16:9 保留完整画面；2.4 是更窄的电影比例）、`focus_y`（裁切的上下位置，0 顶部 – 1 底部）、`poster_at`（静止帧取第几秒）、`alt`（图片说明）、`credit`（显示在横幅下方的出处，比如原视频作者）。
 3. 运行（需要 ffmpeg：`brew install ffmpeg`）：
 
 ```bash

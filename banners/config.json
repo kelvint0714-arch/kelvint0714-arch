@@ -2,13 +2,13 @@
   "source": "",
   "start": 0,
   "duration": 8,
-  "fps": 15,
-  "width": 1280,
-  "aspect": 2.4,
+  "fps": 12,
+  "width": 960,
+  "aspect": 1.7778,
   "focus_y": 0.5,
-  "quality": 72,
+  "quality": 70,
   "poster_at": 2.0,
   "loop_blend": 0.6,
-  "alt": "A short clip that loops beneath the garden.",
+  "alt": "A short anime clip in the spirit of 薫る花は凛と咲く, looping at the top of the garden.",
   "credit": ""
 }
