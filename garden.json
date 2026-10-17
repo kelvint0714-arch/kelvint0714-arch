@@ -1,0 +1,34 @@
+{
+  "user": "kelvint0714-arch",
+  "name": "Kelvin Tang",
+  "timezone": "Asia/Shanghai",
+  "hero": {
+    "eyebrow": "WELCOME TO MY GARDEN",
+    "title": "Kelvin Tang",
+    "verse": "薫る花は凛と咲く",
+    "motto": "Braving the storm, building a stairway to the sky.",
+    "corner": "KELVIN とう",
+    "corner_sub": "KIKYO GARDEN · 桔梗の庭",
+    "footer": "IN FULL BLOOM · SINCE 2025"
+  },
+  "sections": [
+    {
+      "id": "garden",
+      "number": "01",
+      "title": "PROJECT GARDEN",
+      "subtitle": "WORKS AND PUBLIC REPOSITORIES",
+      "flora": "FLORA No. 001",
+      "title_ja": "花壇",
+      "subtitle_ja": "作品と公開リポジトリ"
+    },
+    {
+      "id": "bloom",
+      "number": "02",
+      "title": "BLOOM LOG",
+      "subtitle": "CONTRIBUTIONS, LANGUAGES AND NOTES",
+      "flora": "FLORA No. 002",
+      "title_ja": "開花記録",
+      "subtitle_ja": "コミット・言語・花便り"
+    }
+  ]
+}

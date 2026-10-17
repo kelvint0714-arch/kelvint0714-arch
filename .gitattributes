@@ -1,0 +1,5 @@
+* text=auto eol=lf
+*.ttf binary
+*.webp binary
+assets/** linguist-generated
+data/** linguist-generated

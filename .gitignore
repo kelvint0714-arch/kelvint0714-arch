@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.DS_Store
+
+# Source clips stay local; only the converted banner images are committed.
+banners/*.mp4
+banners/*.mov
+banners/*.webm
+banners/*.mkv
+banners/*.m4v
