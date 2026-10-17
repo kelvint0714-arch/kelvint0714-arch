@@ -5,37 +5,70 @@
 </picture>
 <!-- BANNER:END -->
 
+<!-- MANGA-EDITION: v1 / blackletter headings, ink flowers, linked repository panels -->
+
 <picture>
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/sections/header-garden-dark-mobile.svg" />
+  <source media="(max-width: 600px)" srcset="./assets/sections/header-garden-light-mobile.svg" />
   <source media="(prefers-color-scheme: dark)" srcset="./assets/sections/header-garden-dark.svg" />
-  <img src="./assets/sections/header-garden-light.svg" width="100%" alt="01. Project Garden · 花壇 — works and public repositories · 作品と公開リポジトリ." />
+  <img src="./assets/sections/header-garden-light.svg" width="100%" alt="Project Garden · 花壇. Works and public repositories." />
 </picture>
 
 <!-- GARDEN-REPOS:START -->
-| | Repository | Description | Language |
-| :-: | :--- | :--- | :--- |
-| ✿ | [kelvint0714-arch.github.io](https://github.com/kelvint0714-arch/kelvint0714-arch.github.io) | Event Horizon — Kelvin Tang's personal homepage · Kelvin Tang 的个人主页 | TypeScript |
-| ❀ | [ML-practice](https://github.com/kelvint0714-arch/ML-practice) | this | Jupyter Notebook |
+<a href="https://github.com/kelvint0714-arch/kelvint0714-arch.github.io">
+<picture>
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/repos/kelvint0714-arch-github-io-b5ab2e7-dark-mobile.svg" />
+  <source media="(max-width: 600px)" srcset="./assets/repos/kelvint0714-arch-github-io-b5ab2e7-light-mobile.svg" />
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/repos/kelvint0714-arch-github-io-b5ab2e7-dark.svg" />
+  <img src="./assets/repos/kelvint0714-arch-github-io-b5ab2e7-light.svg" width="100%" alt="kelvint0714-arch.github.io. Event Horizon — Kelvin Tang&#x27;s personal homepage · Kelvin Tang 的个人主页 TypeScript. 1 stars. Updated 2026-10-17. Open repository." />
+</picture>
+</a>
+
+<a href="https://github.com/kelvint0714-arch/ML-practice">
+<picture>
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/repos/ml-practice-0c95dec-dark-mobile.svg" />
+  <source media="(max-width: 600px)" srcset="./assets/repos/ml-practice-0c95dec-light-mobile.svg" />
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/repos/ml-practice-0c95dec-dark.svg" />
+  <img src="./assets/repos/ml-practice-0c95dec-light.svg" width="100%" alt="ML-practice. this Jupyter Notebook. 2 stars. Updated 2026-09-01. Open repository." />
+</picture>
+</a>
+
+<details>
+<summary>Repository text index / 仓库文字索引</summary>
+
+<p><a href="https://github.com/kelvint0714-arch/kelvint0714-arch.github.io"><strong>kelvint0714-arch.github.io</strong></a><br />Event Horizon — Kelvin Tang&#x27;s personal homepage · Kelvin Tang 的个人主页<br /><sub>TypeScript</sub></p>
+
+<p><a href="https://github.com/kelvint0714-arch/ML-practice"><strong>ML-practice</strong></a><br />this<br /><sub>Jupyter Notebook</sub></p>
+
+</details>
 <!-- GARDEN-REPOS:END -->
 
 <picture>
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/sections/header-bloom-dark-mobile.svg" />
+  <source media="(max-width: 600px)" srcset="./assets/sections/header-bloom-light-mobile.svg" />
   <source media="(prefers-color-scheme: dark)" srcset="./assets/sections/header-bloom-dark.svg" />
-  <img src="./assets/sections/header-bloom-light.svg" width="100%" alt="02. Bloom Log · 開花記録 — contributions, languages and notes · コミット・言語・花便り." />
+  <img src="./assets/sections/header-bloom-light.svg" width="100%" alt="Bloom Log · 開花記録. Contributions, languages and notes." />
 </picture>
 
 <picture>
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/metrics/calendar-dark-mobile.svg" />
+  <source media="(max-width: 600px)" srcset="./assets/metrics/calendar-light-mobile.svg" />
   <source media="(prefers-color-scheme: dark)" srcset="./assets/metrics/calendar-dark.svg" />
-  <img src="./assets/metrics/calendar-light.svg" width="100%" alt="Bloom calendar: a softly dimensional garden with one mark per day in seven weekday rows. Seeds mean no contributions; taller stems and fuller flowers show greater activity. Includes contribution total, longest and current streaks, and best day." />
+  <img src="./assets/metrics/calendar-light.svg" width="100%" alt="Bloom calendar: one ink flower per day, with original GitHub contribution counts and levels. Includes total, longest streak, current streak and best day." />
 </picture>
 
-<p>
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./assets/metrics/bouquet-dark.svg" />
-    <img src="./assets/metrics/bouquet-light.svg" width="49%" align="top" alt="Language bouquet: layered pink flowers with curved petals and stems, alongside language percentages and bars across public, non-fork repositories, measured by code size." />
-  </picture>
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./assets/metrics/notes-dark.svg" />
-    <img src="./assets/metrics/notes-light.svg" width="49%" align="top" alt="Garden notes: a quiet timeline of up to five recent public GitHub activities from the last 30 days, with dates and repository names." />
-  </picture>
-</p>
+<picture>
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/metrics/bouquet-dark-mobile.svg" />
+  <source media="(max-width: 600px)" srcset="./assets/metrics/bouquet-light-mobile.svg" />
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/metrics/bouquet-dark.svg" />
+  <img src="./assets/metrics/bouquet-light.svg" width="100%" alt="Language bouquet: public non-fork code-byte shares. Ink flowers, screentone bars, language names and percentages." />
+</picture>
 
-<p align="center"><sub>✿ 一日一輪 · small steps, gently in bloom ✿</sub></p>
+<picture>
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/metrics/notes-dark-mobile.svg" />
+  <source media="(max-width: 600px)" srcset="./assets/metrics/notes-light-mobile.svg" />
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/metrics/notes-dark.svg" />
+  <img src="./assets/metrics/notes-light.svg" width="100%" alt="Garden notes: up to five recent public activities from the last 30 days, including dates and repositories." />
+</picture>
+
+<p align="center"><sub>✧ 一日一輪 · a little ink, a little bloom ✧</sub></p>

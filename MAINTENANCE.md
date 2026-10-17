@@ -1,68 +1,53 @@
-# 维护说明
+# 维护说明 · Ink & Petals
 
-这个仓库是 [kelvint0714-arch 的 GitHub 主页](https://github.com/kelvint0714-arch)。装饰结合《薫る花は凛と咲く》、和栗薫子的暖色横幅，以及用户提供的粉色花田与樱花参考：奶油白、深梅灰文字、灰玫瑰主花与淡紫陪衬。视觉采用柔和立体效果，以卷曲花瓣、暖光、自然弧线和前后遮叠表现体积。深色版使用梅灰底色。页首保留用户提供的视频横幅；其余花朵由 `scripts/garden/` 的代码绘制，参考图没有嵌入装饰素材。
+本版只调整 `kelvint0714-arch/kelvint0714-arch` 的 GitHub 个人资料页。不是独立的 `kelvint0714-arch.github.io` 网站。页首视频横幅、横幅构建脚本、个人信息、数据采集策略、每日工作流保持原样。
 
-## 视觉约定
+## 视觉规则
 
-- 分节标题采用浅浮雕衬线文字、柔圆编号章与舒展的弯枝。粉花大小错落、前后相叠，淡紫花作为陪衬。
-- 指标卡共用大圆角、柔和面光、薄侧缘与扩散投影；文字保持足够对比。
-- 花瓣用连续曲线、柔和渐变、内折暗部与透光边缘表现卷曲，叶片有弯曲中脉。小于 10px 半径的花朵使用简化花心和最多两层花瓣，确保小尺寸清楚。
-- 花暦采用浅斜向投影的柔圆花床，保留七行星期映射和每个已有日期的独立标记。无贡献日为种子；四档花朵采用 GitHub 提供的等级，用株高、花冠大小和饱满程度区分。日历有独立的小花配色，浅色版增强粉色主体，深色版提升活跃花的亮度。
-- 语言花束的百分比和细线条长度按公开非 fork 仓库的代码字节数计算。花束只承担视觉点缀，准确比例以数字与细线条为准。
-- 花便り采用轻弯花茎时间轴和柔和浮起的记录底色。日历、语言及活动的数据获取、快照回退和每日自动更新流程保持一致。
-- SVG 在静止时就是完整画面；入场动画使用短暂淡入与轻微舒展，少量大花缓慢摆动。开启「减少动态效果」时直接显示完成状态。
+黑白漫画分镜、自然曲线花瓣、粗细墨线、叶脉排线和局部网点。没有彩色渐变、立体高光或模糊阴影。浅色采用白纸黑墨，深色采用中性黑底浅色墨线。大标题采用哥特/Fraktur 式矢量字形，仓库精确名称、说明、时间、语言和百分比使用清楚的正文。
 
-## 结构
+- 章节标题：保留 `garden.json` 的章节结构。两种现有章节标题有完整的哥特字形作品，改成其他标题时会使用可读衬线字回退，不会缺字。
+- 仓库：每个公开仓库生成一个带链接的独立分镜卡片。个人网站展示名为 `A Quiet Valley`，ML-practice 展示名为 `Machine Learning`；精确仓库名仍完整保留在卡片及文字索引内，真实仓库没有被重命名。新仓库会自动生成 `Repository` 哥特标题和对应真实名称，不需要手工增补卡片。
+- 日历：一个日期一个标记，保持 GitHub 原始计数和等级；以花形大小和墨色密度区分等级。手机采用上下两段周列，而非把一年压到不可读的窄图里。
+- 语言花束：按公开非 fork 仓库代码字节计算；六项以上合并尾部为 Other，分母仍是全部代码字节数。花束只做装饰，准确比例看条形长度和百分比。
+- 活动：保留原有 30 天筛选、同日同分支推送合并和最多五条记录的规则。
 
-| 部分 | 脚本 | 输出 |
-| :--- | :--- | :--- |
-| 页首视频横幅 | `scripts/build_banner.py` | `assets/banner.webp`、`assets/banner-static.webp` |
-| 分节标题 | `scripts/build_sections.py` | `assets/sections/*.svg` |
-| 花暦 / 言語の花束 / 花便り | `scripts/build_metrics.py` | `assets/metrics/*.svg`、`data/snapshot.json` |
-| 公开仓库表 | `scripts/update_repositories.py` | `README.md` 中 `GARDEN-REPOS` 标记之间 |
+## 文件职责
 
-`scripts/garden/` 是共用的绘图工具：`flora.py`（柔和立体花形与轻量动画）、`palette.py`（浅色/深色配色）、`depth.py`（圆润卡片、软投影与浅浮雕文字）、`text.py`（把字形转成路径，保证各浏览器显示一致）、`data.py`（读取公开的 GitHub 数据）。
+| 模块 | 文件 | 输出 |
+|---|---|---|
+| 章节标题 | `scripts/build_sections.py` | `assets/sections/*.svg` |
+| 贡献、语言和活动 | `scripts/build_metrics.py` | `assets/metrics/*.svg` |
+| 仓库展示 | `scripts/update_repositories.py` | `assets/repos/*.svg` 与 README 的 GARDEN-REPOS 区域 |
+| 共用漫画绘图 | `scripts/garden/manga.py` | 墨线花、网点、分镜和字体布局 |
+| 固定标题字形 | `scripts/garden/manga_lettering.json` | 已排版好的整段标题路径；不是字体文件 |
+| 真实数据 | `scripts/garden/data.py` | 保持原文件不变 |
 
-每张 SVG 都有浅色、深色两版，README 用 `<picture>` 按访客的主题切换。动画的基础样式就是最终画面，访客开启「减少动态效果」时直接显示完成状态。
+SVG 不引入外部字体、脚本或图片。标题路径是固定的完整字形作品；动态的仓库说明和数据仍是实际文字。没有将整页内容锁在一张不能点击的图片中：每张项目图的外层都有普通 HTML 链接，下面还有可展开的仓库文字索引。
 
-## 修改文字
+每张图输出浅/深色与桌面/手机共四个版本。README 的 `<picture>` 使用 600 CSS 像素断点；卡片统一为全宽，手机不再并排挤两张小卡。源码静止时即为完整画面。上方视频的减少动态效果替代封面继续保留。
 
-分节标题的文字在 `garden.json`。改了日文后先运行一次：
+## 自动刷新
+
+沿用 `.github/workflows/garden.yml`，不需要更改权限或工作流。原工作流会依次执行测试、章节绘制、指标数据刷新及仓库展示刷新。脚本仍支持使用 `data/snapshot.json` 作为网络失败回退。
+
+更新时必须同时提交 `scripts/` 与 `assets/`，否则自动刷新可能继续运行旧的粉色绘制代码。最新仓库列表决定 README 中显示哪些项目；本版自动清除不再显示的、由它自己生成的旧项目 SVG，其他文件名不受影响。上方 `assets/banner.webp` 和 `assets/banner-static.webp` 不在此更新包内，也不会被这些脚本重画。
+
+## 本地构建与测试
+
+在原仓库根目录执行：
 
 ```bash
-python3 scripts/fetch_fonts.py
-```
-
-它会从 Google Fonts 重新下载只含所需汉字/假名的 Noto Serif JP 子集（字体均为 OFL 许可，许可文本在 `fonts/`）。然后重新生成：
-
-```bash
+python3 -m unittest discover -s scripts -p 'test_*.py'
 python3 scripts/build_sections.py
+python3 scripts/build_metrics.py --offline
+python3 scripts/update_repositories.py
 ```
 
-## 页首视频横幅
+去掉 `--offline` 才会重新获取 GitHub 数据。本版素材生成不需要新增字体下载；原工作流已有的 fontTools 安装步骤保留无害。原仓库的旧 `flora.py`、`palette.py`、`depth.py` 与字体目录无需删除，以免影响其他旧脚本。
 
-主页最上方是你提供的视频片段，转换成循环播放的动图。
+## 数据与范围
 
-1. 把视频片段（mp4 / mov / webm）放进 `banners/`。视频本身不会提交到仓库（见 `.gitignore`），只提交转换后的图片。
-2. 按需修改 `banners/config.json`：`start`（起始秒）、`duration`（时长）、`fps`、`width`、`aspect`（宽高比，现在是 16:9 保留完整画面；2.4 是更窄的电影比例）、`focus_y`（裁切的上下位置，0 顶部 – 1 底部）、`poster_at`（静止帧取第几秒）、`alt`（图片说明）、`credit`（显示在横幅下方的出处，比如原视频作者）。
-3. 运行（需要 ffmpeg：`brew install ffmpeg`）：
+代码只改变呈现方式，不修改仓库描述、星标、语言数据、贡献计数或事件。预览中的 `this` 与 `Event Horizon …` 是数据快照里的原始仓库描述，不是重新编写的新介绍。后续修改 GitHub 仓库描述后，自动刷新会显示新值。
 
-```bash
-python3 scripts/build_banner.py
-```
-
-脚本会裁切、缩放、加圆角和柔和的边缘渐隐，把结尾和开头交叉淡化成无缝循环，输出动态 WebP 和一张静止帧，并自动把横幅插入 README。文件超过约 9 MB 时会提示，减小 `duration`、`fps` 或 `width` 即可。`--remove` 可以撤下横幅。
-
-## 自动更新
-
-[Tend the garden](.github/workflows/garden.yml) 每天北京时间 06:23 运行，也会在修改 `garden.json`、`scripts/`、`fonts/` 后运行，或在 Actions 页面手动运行。它会先跑测试，再重新绘制所有 SVG、读取最新的公开数据、刷新仓库表，有变化就提交。
-
-数据都是公开可见的内容：贡献日历从公开主页匿名读取，仓库、语言和动态来自公开 API（`GITHUB_TOKEN` 只用来提高频率上限）。读取失败时沿用 `data/snapshot.json` 里上一次的数据，卡片不会变空。
-
-## 本地预览与测试
-
-```bash
-python3 -m pip install fonttools Pillow
-python3 -m unittest discover -s scripts -p "test_*.py"
-python3 scripts/build_metrics.py --offline   # 不联网，用快照重画卡片
-```
+本次本地预览使用仓库已有快照，时间为 `2026-10-17T09:47:03Z`。用户头像图片未成功拉取，本版遵循用户明确指定的黑白漫画与艺术哥特体方向，尚未逐项匹配头像笔触。
