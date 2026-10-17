@@ -6,7 +6,7 @@ from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 sys.path.insert(0,str(Path(__file__).resolve().parent))
-from garden import data, manga
+from garden import data, manga, calendar3d
 ROOT=Path(__file__).resolve().parent.parent
 SNAPSHOT=ROOT/'data'/'snapshot.json'
 OUT=ROOT/'assets'/'ink-v2'/'metrics'
@@ -82,7 +82,7 @@ def load_snapshot(user: str, offline: bool) -> dict:
     return json.loads(SNAPSHOT.read_text(encoding="utf-8"))
 
 def calendar_card(theme: str, snap: dict):
-    return manga.calendar_card(theme,snap)
+    return calendar3d.calendar_card(theme,snap)
 
 def bouquet_card(theme: str, snap: dict):
     return manga.bouquet_card(theme,snap)
@@ -100,13 +100,17 @@ def main(argv: list[str]) -> int:
     OUT.mkdir(parents=True,exist_ok=True)
     for mobile in (False,True):
         for theme in ('light','dark'):
-            for name,doc in [('calendar',manga.calendar_card(theme,snap,mobile)),
+            for name,doc in [('calendar',calendar3d.calendar_card(theme,snap,mobile)),
                              ('bouquet',manga.bouquet_card(theme,snap,mobile)),
                              ('notes',manga.notes_card(theme,snap,notes,tz.key,mobile))]:
                 suffix='-mobile' if mobile else ''
                 path=OUT/f'{name}-{theme}{suffix}.svg'
                 path.write_text(doc.render(),encoding='utf-8')
                 print(path.name)
+                if name == 'calendar':
+                    alias = ROOT/'assets'/'metrics'/path.name
+                    alias.parent.mkdir(parents=True, exist_ok=True)
+                    alias.write_text(doc.render(), encoding='utf-8')
     return 0
 if __name__=='__main__':
     sys.exit(main(sys.argv[1:]))
