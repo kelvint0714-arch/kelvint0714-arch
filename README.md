@@ -20,7 +20,7 @@
   <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/ink-v2/repos/kelvint0714-arch-github-io-b5ab2e7-dark-mobile.svg" />
   <source media="(max-width: 600px)" srcset="./assets/ink-v2/repos/kelvint0714-arch-github-io-b5ab2e7-light-mobile.svg" />
   <source media="(prefers-color-scheme: dark)" srcset="./assets/ink-v2/repos/kelvint0714-arch-github-io-b5ab2e7-dark.svg" />
-  <img src="./assets/ink-v2/repos/kelvint0714-arch-github-io-b5ab2e7-light.svg" width="100%" alt="kelvint0714-arch.github.io. Event Horizon — Kelvin Tang&#x27;s personal homepage · Kelvin Tang 的个人主页 TypeScript. 1 stars. Updated 2026-10-17. Open repository." />
+  <img src="./assets/ink-v2/repos/kelvint0714-arch-github-io-b5ab2e7-light.svg" width="100%" alt="kelvint0714-arch.github.io. Event Horizon — Kelvin Tang&#x27;s personal homepage · Kelvin Tang 的个人主页 TypeScript. 1 stars. Updated 2026-10-18. Open repository." />
 </picture>
 </a>
 

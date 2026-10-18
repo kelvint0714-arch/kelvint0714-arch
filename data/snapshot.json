@@ -1,8 +1,8 @@
 {
  "user": "kelvint0714-arch",
- "fetched_at": "2026-10-18T05:05:33Z",
+ "fetched_at": "2026-10-18T09:33:13Z",
  "calendar": {
-  "total": 143,
+  "total": 150,
   "days": [
    [
     "2025-10-19",
@@ -1311,12 +1311,12 @@
    ],
    [
     "2026-07-07",
-    1,
+    2,
     2
    ],
    [
     "2026-07-08",
-    2,
+    3,
     4
    ],
    [
@@ -1326,7 +1326,7 @@
    ],
    [
     "2026-07-10",
-    1,
+    2,
     2
    ],
    [
@@ -1341,7 +1341,7 @@
    ],
    [
     "2026-07-13",
-    1,
+    2,
     2
    ],
    [
@@ -1351,7 +1351,7 @@
    ],
    [
     "2026-07-15",
-    2,
+    3,
     4
    ],
    [
@@ -1371,7 +1371,7 @@
    ],
    [
     "2026-07-19",
-    1,
+    2,
     2
    ],
    [
@@ -1386,7 +1386,7 @@
    ],
    [
     "2026-07-22",
-    1,
+    2,
     2
    ],
    [
@@ -1401,22 +1401,22 @@
    ],
    [
     "2026-07-25",
-    2,
+    3,
     4
    ],
    [
     "2026-07-26",
-    2,
+    3,
     4
    ],
    [
     "2026-07-27",
-    3,
+    4,
     6
    ],
    [
     "2026-07-28",
-    2,
+    3,
     4
    ],
    [
@@ -1426,7 +1426,7 @@
    ],
    [
     "2026-07-30",
-    3,
+    4,
     6
    ],
    [
@@ -1466,7 +1466,7 @@
    ],
    [
     "2026-08-07",
-    3,
+    4,
     5
    ],
    [
@@ -1591,7 +1591,7 @@
    ],
    [
     "2026-09-01",
-    3,
+    4,
     5
    ],
    [
@@ -1706,7 +1706,7 @@
    ],
    [
     "2026-09-24",
-    1,
+    2,
     2
    ],
    [
@@ -1806,17 +1806,17 @@
    ],
    [
     "2026-10-14",
-    3,
+    4,
     5
    ],
    [
     "2026-10-15",
-    3,
+    4,
     5
    ],
    [
     "2026-10-16",
-    2,
+    3,
     4
    ],
    [
@@ -1827,7 +1827,7 @@
    [
     "2026-10-18",
     4,
-    8
+    15
    ]
   ]
  },
@@ -1844,7 +1844,7 @@
    "language": "TypeScript",
    "fork": false,
    "stargazers_count": 1,
-   "pushed_at": "2026-10-17T16:01:16Z",
+   "pushed_at": "2026-10-18T06:29:31Z",
    "archived": false
   },
   {
@@ -1861,13 +1861,165 @@
  ],
  "languages": {
   "Jupyter Notebook": 1127806,
-  "TypeScript": 351190,
+  "TypeScript": 346044,
   "Python": 71134,
-  "CSS": 30841,
+  "CSS": 29422,
   "JavaScript": 7717,
   "HTML": 1472
  },
  "events": [
+  {
+   "type": "PushEvent",
+   "repo": "kelvint0714-arch/kelvint0714-arch",
+   "created_at": "2026-10-17T16:50:29Z",
+   "payload": {
+    "repository_id": 1422996978,
+    "push_id": 46833638649,
+    "ref": "refs/heads/main",
+    "head": "57a2e30461f00099ec9636c887331ffdaa7d1e5f",
+    "before": "1ab3fee16d1fb452876fe1ba985ec29175b05aec"
+   }
+  },
+  {
+   "type": "PullRequestEvent",
+   "repo": "kelvint0714-arch/kelvint0714-arch.github.io",
+   "created_at": "2026-10-18T06:29:25Z",
+   "payload": {
+    "action": "merged",
+    "number": 2,
+    "pull_request": {
+     "url": "https://api.github.com/repos/kelvint0714-arch/kelvint0714-arch.github.io/pulls/2",
+     "id": 4906949909,
+     "number": 2,
+     "head": {
+      "ref": "mist-and-weather",
+      "sha": "1ea1eb4a6b4994011d3e1e94bd86e9aa41f5113d",
+      "repo": {
+       "id": 1418565958,
+       "url": "https://api.github.com/repos/kelvint0714-arch/kelvint0714-arch.github.io",
+       "name": "kelvint0714-arch.github.io"
+      }
+     },
+     "base": {
+      "ref": "main",
+      "sha": "46baaa3a33d2eaf89923a90faea1fc0d4c8528a3",
+      "repo": {
+       "id": 1418565958,
+       "url": "https://api.github.com/repos/kelvint0714-arch/kelvint0714-arch.github.io",
+       "name": "kelvint0714-arch.github.io"
+      }
+     }
+    }
+   }
+  },
+  {
+   "type": "PullRequestEvent",
+   "repo": "kelvint0714-arch/kelvint0714-arch.github.io",
+   "created_at": "2026-10-18T06:29:10Z",
+   "payload": {
+    "action": "opened",
+    "number": 2,
+    "pull_request": {
+     "url": "https://api.github.com/repos/kelvint0714-arch/kelvint0714-arch.github.io/pulls/2",
+     "id": 4906949909,
+     "number": 2,
+     "head": {
+      "ref": "mist-and-weather",
+      "sha": "1ea1eb4a6b4994011d3e1e94bd86e9aa41f5113d",
+      "repo": {
+       "id": 1418565958,
+       "url": "https://api.github.com/repos/kelvint0714-arch/kelvint0714-arch.github.io",
+       "name": "kelvint0714-arch.github.io"
+      }
+     },
+     "base": {
+      "ref": "main",
+      "sha": "46baaa3a33d2eaf89923a90faea1fc0d4c8528a3",
+      "repo": {
+       "id": 1418565958,
+       "url": "https://api.github.com/repos/kelvint0714-arch/kelvint0714-arch.github.io",
+       "name": "kelvint0714-arch.github.io"
+      }
+     }
+    }
+   }
+  },
+  {
+   "type": "PullRequestEvent",
+   "repo": "kelvint0714-arch/kelvint0714-arch.github.io",
+   "created_at": "2026-10-18T05:47:59Z",
+   "payload": {
+    "action": "merged",
+    "number": 1,
+    "pull_request": {
+     "url": "https://api.github.com/repos/kelvint0714-arch/kelvint0714-arch.github.io/pulls/1",
+     "id": 4906740292,
+     "number": 1,
+     "head": {
+      "ref": "bridge-by-itself",
+      "sha": "852c4c408a62802e48141f84a94ec475dc41775c",
+      "repo": {
+       "id": 1418565958,
+       "url": "https://api.github.com/repos/kelvint0714-arch/kelvint0714-arch.github.io",
+       "name": "kelvint0714-arch.github.io"
+      }
+     },
+     "base": {
+      "ref": "main",
+      "sha": "31b575e61616e3cc38337ef09a7924294d2ce528",
+      "repo": {
+       "id": 1418565958,
+       "url": "https://api.github.com/repos/kelvint0714-arch/kelvint0714-arch.github.io",
+       "name": "kelvint0714-arch.github.io"
+      }
+     }
+    }
+   }
+  },
+  {
+   "type": "PullRequestEvent",
+   "repo": "kelvint0714-arch/kelvint0714-arch.github.io",
+   "created_at": "2026-10-18T05:47:37Z",
+   "payload": {
+    "action": "opened",
+    "number": 1,
+    "pull_request": {
+     "url": "https://api.github.com/repos/kelvint0714-arch/kelvint0714-arch.github.io/pulls/1",
+     "id": 4906740292,
+     "number": 1,
+     "head": {
+      "ref": "bridge-by-itself",
+      "sha": "852c4c408a62802e48141f84a94ec475dc41775c",
+      "repo": {
+       "id": 1418565958,
+       "url": "https://api.github.com/repos/kelvint0714-arch/kelvint0714-arch.github.io",
+       "name": "kelvint0714-arch.github.io"
+      }
+     },
+     "base": {
+      "ref": "main",
+      "sha": "31b575e61616e3cc38337ef09a7924294d2ce528",
+      "repo": {
+       "id": 1418565958,
+       "url": "https://api.github.com/repos/kelvint0714-arch/kelvint0714-arch.github.io",
+       "name": "kelvint0714-arch.github.io"
+      }
+     }
+    }
+   }
+  },
+  {
+   "type": "PushEvent",
+   "repo": "kelvint0714-arch/kelvint0714-arch.github.io",
+   "created_at": "2026-10-17T09:01:57Z",
+   "payload": {
+    "repository_id": 1418565958,
+    "push_id": 46803908038,
+    "ref": "refs/heads/main",
+    "head": "04e542273da847e826e68c7175d4397bc8725077",
+    "before": "612c493f71e8053990de9a86accb41e85f14b976"
+   }
+  },
   {
    "type": "PushEvent",
    "repo": "kelvint0714-arch/kelvint0714-arch.github.io",
