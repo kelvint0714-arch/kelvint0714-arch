@@ -378,41 +378,16 @@ def notes_card(theme,snap,notes,tz_name,mobile=False):
     doc.add(text(doc,f'LAST 30 DAYS / {tz_name.upper()}',32 if mobile else 42,h-31,10 if mobile else 11,spacing=.8))
     return doc
 
-def little_architecture(doc,k=1):
-    p=doc.pal;i=p['ink'];a=p['paper'];out=[]
-    # Original tiny ink vignette; no image or model from the independent site is modified.
-    out.append(f'<rect x="0" y="0" width="290" height="215" fill="{tone(doc,"dots",k)}"/>')
-    out.append(f'<circle cx="211" cy="39" r="24" fill="{a}" stroke="{i}" stroke-width="{n(nib(k,"inner"))}"/>')
-    out.append(f'<path d="M21 190L133 118L271 171L158 211Z" fill="{a}" stroke="{i}" stroke-width="{n(nib(k,"contour"))}"/>')
-    out.append(f'<path d="M61 141L117 110L174 143L117 176Z" fill="{a}" stroke="{i}" stroke-width="{n(nib(k,"contour"))}"/>')
-    out.append(f'<path d="M61 141V172L117 203V176Z" fill="{tone(doc,"hatch",k)}" stroke="{i}" stroke-width="{n(nib(k,"contour"))}"/>')
-    out.append(f'<path d="M117 176L174 143V174L117 203Z" fill="{a}" stroke="{i}" stroke-width="{n(nib(k,"contour"))}"/>')
-    out.append(f'<path d="M94 119V56L129 35L164 55V120L129 141Z" fill="{a}" stroke="{i}" stroke-width="{n(nib(k,"contour"))}"/>')
-    out.append(f'<path d="M94 56L129 76V141L94 120Z" fill="{tone(doc,"hatch",k)}" stroke="{i}" stroke-width="{n(nib(k,"inner"))}"/>')
-    out.append(f'<path d="M94 56L129 35L164 55L129 76Z" fill="{a}" stroke="{i}" stroke-width="{n(nib(k,"inner"))}"/>')
-    out.append(f'<path d="M137 125V93C137 78 155 68 155 84V115Z" fill="{i}"/>')
-    out.append(f'<path d="M115 47V24L129 9L145 23V47L129 56Z" fill="{a}" stroke="{i}" stroke-width="{n(nib(k,"contour"))}"/>')
-    out.append(f'<path d="M115 24L129 9L145 23L129 32Z" fill="{i}"/>')
-    # Readable stair treads instead of extra decorative towers.
-    for j in range(9):
-        xx=172+j*5;yy=136+j*4
-        out.append(f'<path d="M{xx} {yy}l22-13v5l-22 13Z" fill="{a}" stroke="{i}" stroke-width="{n(nib(k,"detail"))}"/>')
-    out.append(sparkle(doc,45,55,5));out.append(sparkle(doc,243,114,4))
-    return ''.join(out)
+def repo_card(theme,repo,index,mobile=False,art=None):
+    """A repository panel with its own ink scene (see vignettes.py).
 
-def book_vignette(doc,k=1):
-    p=doc.pal;i=p['ink'];a=p['paper']
-    s=f'<rect width="290" height="215" fill="{tone(doc,"dots",k)}"/>'
-    s+=f'<path d="M29 165Q80 123 143 158Q200 120 260 160L251 187Q196 154 143 183Q88 155 33 190Z" fill="{a}" stroke="{i}" stroke-width="{n(nib(k,"contour"))}"/>'
-    s+=f'<path d="M36 150Q83 111 143 154Q195 112 253 147L246 176Q190 144 143 176Q86 145 36 180Z" fill="{a}" stroke="{i}" stroke-width="{n(nib(k,"inner"))}"/>'
-    s+=line(doc,143,155,143,177,nib(k,"inner"))
-    for y in [141,147,154,161]:s+=f'<path d="M53 {y}Q94 {y-18} 127 {y+9}M160 {y+9}Q194 {y-18} 236 {y}" fill="none" stroke="{i}" stroke-width="{n(nib(k,"detail"))}"/>'
-    s+=place(138,89,sprig(doc,27,k*.58),scale=.58,rotate=12)
-    for x,y in [(46,57),(241,68)]:s+=sparkle(doc,x,y,5)
-    return s
-
-def repo_card(theme,repo,index,mobile=False):
-    w=480 if mobile else 960;h=347 if mobile else 264;p=THEMES[theme]
+    `art` names the scene; update_repositories assigns them so repositories
+    don't repeat one. Phones get the scene as a band above the title.
+    """
+    from . import vignettes
+    art=art or vignettes.ranked(repo)[0]
+    band=154 if mobile else 0
+    w=480 if mobile else 960;h=(347+band) if mobile else 264;p=THEMES[theme]
     name=str(repo.get('name','Repository'));desc=str(repo.get('description') or 'No description provided.');lang=repo.get('language') or '—'
     aliases={'kelvint0714-arch.github.io':'A Quiet Valley','ML-practice':'Machine Learning'}
     label=aliases.get(name,'Repository')
@@ -422,22 +397,29 @@ def repo_card(theme,repo,index,mobile=False):
     panel(doc);k=shown(doc)
     x=27 if mobile else 35
     doc.add(text(doc,f'{index+1:02d} / {flags}',x,35,10 if mobile else 12,spacing=1.7,fill=p['secondary']))
-    doc.add(title(doc,label,x,94 if mobile else 109,55 if mobile else 62,max_width=420 if mobile else 582))
-    doc.add(text(doc,fit(name,14 if mobile else 17,421 if mobile else 595),x,126 if mobile else 144,14 if mobile else 17,'mono',fill=p['secondary']))
+    if mobile:
+        s=.68
+        doc.add(f'<rect x="26" y="46" width="428" height="148" fill="{tone(doc,"dots",k)}"/>')
+        ox=240-145*s
+        doc.add(place(ox,46,vignettes.draw(doc,art,k*s,((26-ox)/s,0,(454-ox)/s,148/s)),scale=s))
+        doc.add(line(doc,26,196,454,196,nib(k,'inner')))
+    doc.add(title(doc,label,x,(94+band) if mobile else 109,55 if mobile else 62,max_width=420 if mobile else 582))
+    doc.add(text(doc,fit(name,14 if mobile else 17,421 if mobile else 595),x,(126+band) if mobile else 144,14 if mobile else 17,'mono',fill=p['secondary']))
     # Preserve original descriptions verbatim in accessible text; wrap in the drawing.
     for j,row in enumerate(wrap(desc,17 if mobile else 18,420 if mobile else 585,3 if mobile else 2)):
-        doc.add(text(doc,row,x,165+j*23 if mobile else 176+j*23,17 if mobile else 18,'serif'))
-    y=259 if mobile else 221
+        doc.add(text(doc,row,x,165+band+j*23 if mobile else 176+j*23,17 if mobile else 18,'serif'))
+    y=(259+band) if mobile else 221
     doc.add(line(doc,x,y-13,439 if mobile else 616,y-13,nib(k,"detail"),ink=p['faint']))
     doc.add(text(doc,lang,x,y+9,13 if mobile else 14,weight=600))
     doc.add(text(doc,f'☆ {stars}',242 if mobile else 285,y+9,14))
     doc.add(text(doc,stamp,439 if mobile else 616,y+9,11 if mobile else 12,anchor='end',fill=p['secondary']))
     if mobile:
-        doc.add(text(doc,'OPEN REPOSITORY',x,315,11,spacing=1.4))
-        doc.add(line(doc,388,310,438,310,nib(k,"inner")));doc.add(f'<path d="M431 304L438 310L431 316" fill="none" stroke="{p["ink"]}" stroke-width="{n(nib(k,"inner"))}"/>')
+        oy=315+band
+        doc.add(text(doc,'OPEN REPOSITORY',x,oy,11,spacing=1.4))
+        doc.add(line(doc,388,oy-5,438,oy-5,nib(k,"inner")));doc.add(f'<path d="M431 {oy-11}L438 {oy-5}L431 {oy+1}" fill="none" stroke="{p["ink"]}" stroke-width="{n(nib(k,"inner"))}"/>')
     else:
-        drawing=little_architecture(doc,k) if name.endswith('.github.io') else book_vignette(doc,k)
-        doc.add(place(643,19,drawing,scale=1))
+        doc.add(f'<rect x="643" y="19" width="290" height="215" fill="{tone(doc,"dots",k)}"/>')
+        doc.add(place(643,19,vignettes.draw(doc,art,k)))
         doc.add(f'<path d="M639 17L640 241" stroke="{p["ink"]}" stroke-width="{n(nib(k,"contour"))}"/>')
         doc.add(f'<rect x="824" y="210" width="103" height="25" fill="{p["paper"]}" stroke="{p["ink"]}" stroke-width="{n(nib(k,"inner"))}"/>')
         doc.add(text(doc,'OPEN  →',875,227,11,anchor='middle',spacing=1.1))
