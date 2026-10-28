@@ -30,7 +30,7 @@
 | `notebook` | 实验笔记：长出叶子的损失曲线、花朵组成的小神经网络 | 机器学习、数据、研究、Python / Jupyter |
 | `clockwork` | 打开的怀表，齿轮里长出一朵玫瑰 | C / C++ / Rust / Go、系统、引擎 |
 | `teacup` | 茶杯的热气化成樱花 | 笔记、文档、博客、清单 |
-| `lantern` | 樱枝下的纸灯笼 | 应用、界面、游戏、Swift / Kotlin / C# |
+| `fan` | 展开的折扇，扇面画着樱枝 | 应用、界面、游戏、Swift / Kotlin / C# |
 | `crane` | 浪上的纸鹤 | 算法、竞赛、题解、练习、课程 |
 | `terminal` | 屏幕里长出藤蔓的小终端 | 命令行工具、脚本、dotfiles |
 | `seedling` | 浇水中的盆栽幼苗 | 其他所有仓库（兜底） |

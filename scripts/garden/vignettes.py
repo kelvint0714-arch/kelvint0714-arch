@@ -53,11 +53,13 @@ class Pen:
 
     def petal(self, x, y, size, rotate, black=False):
         """A falling sakura petal: notched tip and a centre crease."""
-        size = max(size, 11 / self.k)
-        d = (f'M0 0C{n(size*.62)} {n(-size*.18)} {n(size*.66)} {n(-size*.78)} {n(size*.24)} {n(-size)}'
-             f'L0 {n(-size*.8)}L{n(-size*.24)} {n(-size)}C{n(-size*.66)} {n(-size*.78)} {n(-size*.62)} {n(-size*.18)} 0 0Z')
+        size = max(size, 14 / self.k)
+        d = (f'M0 0C{n(size*.6)} {n(-size*.16)} {n(size*.62)} {n(-size*.8)} {n(size*.22)} {n(-size)}'
+             f'L0 {n(-size*.84)}L{n(-size*.22)} {n(-size)}C{n(-size*.62)} {n(-size*.8)} {n(-size*.6)} {n(-size*.16)} 0 0Z')
         art = self.shape(d, self.ink if black else None, 'inner')
-        art += self.line(f'M0 {n(-size*.12)}Q{n(size*.08)} {n(-size*.45)} 0 {n(-size*.72)}', 'detail', self.paper if black else None)
+        if size * self.k >= 18:
+            art += self.line(f'M0 {n(-size*.12)}Q{n(size*.08)} {n(-size*.45)} 0 {n(-size*.7)}', 'detail',
+                             self.paper if black else None)
         return manga.place(x, y, art, rotate=rotate)
 
 
@@ -244,48 +246,56 @@ def teacup(p: Pen) -> str:
     return ''.join(out)
 
 
-def lantern(p: Pen) -> str:
-    """A paper lantern under a cherry branch, its light drawn as short ink rays."""
+def fan(p: Pen) -> str:
+    """An open folding fan, its pleated paper painted with a cherry branch."""
     i, a, out = p.ink, p.paper, []
-    # Branch from the upper left with a few blossoms.
-    out.append(p.line('M0 26C40 30 70 18 104 8M40 30C52 40 54 52 50 60', 'contour'))
-    out.append(p.bloom(28, 22, 10, 121, rotate=10))
-    out.append(p.bloom(70, 18, 8, 122, rotate=-30))
-    out.append(p.bloom(50, 60, 7, 123, rotate=20))
-    out.append(p.leaf(92, 12, 15, 5, True, 70))
-    # Rays of light around the body.
-    for j in range(14):
-        ang = j * 2 * math.pi / 14 + .1
-        x0, y0 = 145 + 70*math.cos(ang), 96 + 64*math.sin(ang)
-        x1, y1 = 145 + 82*math.cos(ang), 96 + 75*math.sin(ang)
-        if y1 < 200 and not (x1 > 175 and y1 > 180):
-            out.append(p.line(f'M{n(x0)} {n(y0)}L{n(x1)} {n(y1)}', 'detail'))
-    # Cord, caps, body and ribs.
-    out.append(p.line('M145 0V30', 'inner'))
-    out.append(p.shape('M100 44C72 70 72 124 100 150H190C218 124 218 70 190 44Z'))
-    out.append(f'<path d="M176 46H190C218 70 218 124 190 150H176C200 124 200 70 176 46Z" fill="{p.tone("hatch")}"/>')
-    for y in range(58, 144, 13):
-        bulge = 1 - abs(y - 97) / 60
-        out.append(p.line(f'M{n(100 - 22*bulge)} {y}Q145 {n(y + 6*bulge)} {n(190 + 22*bulge)} {y}', 'detail'))
-    out.append(p.shape('M122 30H168V44H122Z', i, 'inner'))
-    out.append(p.shape('M122 150H168V162H122Z', i, 'inner'))
-    out.append(manga.text(p.doc, '花', 145, 108, 30, 'cjk', anchor='middle'))
-    # Tassel.
-    out.append(p.line('M145 162V176', 'inner'))
-    out.append(p.shape('M139 176H151L154 200H136Z', p.tone('hatch'), 'inner'))
-    for x in (138, 142, 146, 150, 153):
-        out.append(p.line(f'M{x} 200V{206 if x % 4 else 204}'))
-    out.append(p.petal(236, 120, 8, 140) + p.petal(60, 140, 7, -30, True) + p.petal(250, 60, 7, 60))
-    out.append(p.sparkle(262, 26, 5) + p.sparkle(34, 182, 4))
+    cx, cy, outer_r, inner_r = 140, 182, 122, 46
+    ribs = 15
+    angles = [math.radians(-168 + 140 * j / (ribs - 1)) for j in range(ribs)]
+    at = lambda ang, r: (cx + r * math.cos(ang), cy + r * math.sin(ang))
+    tips = [at(t, outer_r) for t in angles]
+    roots = [at(t, inner_r) for t in angles]
+    pts = lambda seq: 'L'.join(f'{n(x)} {n(y)}' for x, y in seq)
+    band = f'M{pts(tips)}L{pts(roots[::-1])}Z'
+    # Bare sticks between the rivet and the paper.
+    for x, y in roots:
+        out.append(p.line(f'M{cx} {cy}L{n(x)} {n(y)}', 'inner'))
+    # Pleats: alternate panels carry light tone so the folds read.
+    for j in range(ribs - 1):
+        quad = f'M{pts([tips[j], tips[j+1], roots[j+1], roots[j]])}Z'
+        out.append(f'<path d="{quad}" fill="{p.tone("dots") if j % 2 else a}"/>')
+    # The painting, clipped to the paper.
+    cid = f'fan-paper-{len(p.doc.defs)}'
+    p.doc.defs.append(f'<clipPath id="{cid}"><path d="{band}"/></clipPath>')
+    art = [p.line('M30 168C60 140 92 112 128 96C160 82 196 86 236 116', 'contour'),
+           p.line('M128 96C134 80 148 72 160 70M84 126C80 114 82 104 90 96', 'inner'),
+           p.bloom(92, 98, 10, 161, rotate=10), p.bloom(162, 70, 12, 162, 'rose', rotate=-12),
+           p.bloom(206, 98, 9, 163, rotate=30), p.bloom(56, 138, 7, 164, rotate=-30),
+           p.leaf(116, 104, 14, 5, True, 20), p.leaf(186, 88, 13, 5, False, 70)]
+    out.append(f'<g clip-path="url(#{cid})">{"".join(art)}</g>')
+    # Fold lines over the paper, then the outline of the whole band.
+    for (x0, y0), (x1, y1) in zip(roots, tips):
+        out.append(p.line(f'M{n(x0)} {n(y0)}L{n(x1)} {n(y1)}', 'detail'))
+    out.append(f'<path d="{band}" fill="none" stroke="{i}" stroke-width="{p.w("contour")}"/>')
+    # Guard sticks, rivet and tassel.
+    for t in (angles[0], angles[-1]):
+        (x0, y0), (x1, y1) = at(t - .025, 8), at(t, outer_r + 5)
+        (x2, y2), (x3, y3) = at(t + .025, 8), at(t + .012, outer_r + 5)
+        out.append(p.shape(f'M{n(x0)} {n(y0)}L{n(x1)} {n(y1)}L{n(x3)} {n(y3)}L{n(x2)} {n(y2)}Z', i, 'inner'))
+    out.append(f'<circle cx="{cx}" cy="{cy}" r="6.5" fill="{i}"/><circle cx="{cx-1.5}" cy="{cy-1.5}" r="2" fill="{a}"/>')
+    out.append(p.line(f'M{cx} {cy+6}C{cx-4} {cy+16} {cx-18} {cy+16} {cx-26} {cy+12}', 'inner'))
+    out.append(p.shape(f'M{cx-26} {cy+8}l-6 5 4 4 6-4Z', i, 'detail'))
+    for dx in (0, 3, 6, 9):
+        out.append(p.line(f'M{cx-31+dx*.4} {cy+15}l{-4+dx*.6} {14 - dx*.3}'))
+    out.append(p.petal(250, 54, 13, 40) + p.petal(30, 92, 12, -50) + p.petal(262, 158, 12, 150))
+    out.append(p.sparkle(40, 36, 5) + p.sparkle(244, 24, 4))
     return ''.join(out)
 
 
 def crane(p: Pen) -> str:
     """An origami crane over a sea of curling ink waves."""
     i, a, out = p.ink, p.paper, []
-    # Waves, back to front: each a crest with a curl and a few foam lines.
-    for x0, y0, s in ((-10, 168, 1.0), (96, 176, .9), (190, 166, 1.05)):
-        out.append(manga.place(x0, y0, wave(p, s)))
+    out.append(sea(p))
     # The crane: wings, body, neck and tail as folded facets.
     # Far wing first, then the body diamond, neck, tail and near wing.
     out.append(p.shape('M152 100L228 18L196 112Z'))
@@ -300,22 +310,33 @@ def crane(p: Pen) -> str:
     out.append(p.shape('M84 22L96 74L106 110Z', p.tone('hatch'), 'inner'))
     out.append(p.line('M150 104L96 74', 'detail'))
     # Petals on the wind.
-    out.append(p.petal(40, 118, 12, 40) + p.petal(262, 128, 11, -60, True) + p.petal(30, 60, 11, 120))
-    out.append(p.bloom(222, 150, 7, 131, rotate=15))
+    out.append(p.petal(40, 116, 13, 40) + p.petal(258, 136, 13, -60) + p.petal(28, 62, 12, 120))
+    out.append(p.bloom(132, 194, 8, 131, rotate=15))
     out.append(p.sparkle(256, 24, 5) + p.sparkle(30, 30, 4))
     return ''.join(out)
 
 
-def wave(p: Pen, s: float) -> str:
-    d = (f'M0 {n(40*s)}C{n(20*s)} {n(10*s)} {n(56*s)} {n(-14*s)} {n(84*s)} {n(-2*s)}'
-         f'C{n(100*s)} {n(6*s)} {n(98*s)} {n(24*s)} {n(84*s)} {n(22*s)}'
-         f'C{n(74*s)} {n(20*s)} {n(76*s)} {n(10*s)} {n(84*s)} {n(10*s)}'
-         f'C{n(70*s)} {n(0)} {n(44*s)} {n(16*s)} {n(40*s)} {n(40*s)}Z')
-    out = p.shape(d, p.paper, 'inner')
-    out += p.solid(f'M{n(40*s)} {n(40*s)}C{n(46*s)} {n(22*s)} {n(66*s)} {n(10*s)} {n(84*s)} {n(10*s)}'
-                   f'C{n(64*s)} {n(14*s)} {n(52*s)} {n(26*s)} {n(52*s)} {n(40*s)}Z')
-    for j in range(3):
-        out += p.line(f'M{n((8+j*9)*s)} {n((38-j*4)*s)}C{n((24+j*8)*s)} {n((18-j*3)*s)} {n((48+j*6)*s)} {n((2-j*2)*s)} {n((70+j*3)*s)} {n((-2-j)*s)}')
+def sea(p: Pen) -> str:
+    """Two curling crests rising from one sea line, kept left of the OPEN button."""
+    out = []
+    for x0, scale in ((-14, 1.0), (82, .72)):
+        # Crests are drawn with their base on y=200; seat that base on the sea line.
+        art = crest(Pen(p.doc, p.k * scale))
+        out.append(f'<g transform="translate({n(x0)} {n(198 - 200*scale)}) scale({n(scale)})">{art}</g>')
+    # The sea surface and its ripples stop short of the button's corner.
+    # It runs out of frame on the left and sinks away before the button on the right.
+    out.append(p.shape('M-200 230V198Q-182 192 -164 198T-128 198T-92 198T-56 198T-20 198T16 198T52 198T88 198T124 198T160 198C170 200 176 206 178 230Z', p.paper, 'inner'))
+    out.append(p.line('M-150 205H-120M-96 209H-64M4 205H30M44 209H76M92 205H116M128 210H150M20 212H40'))
+    return ''.join(out)
+
+
+def crest(p: Pen) -> str:
+    """A wave crest: back slope, a hooked curl with a black hollow, foam claws, flow lines."""
+    out = p.shape('M0 200C14 186 28 160 52 150C74 142 94 146 98 160C100 170 90 174 84 168'
+                  'C88 162 84 156 76 156C62 156 54 174 56 200Z')
+    out += p.solid('M56 200C54 178 62 162 76 160C68 168 66 184 70 200Z')
+    out += p.line('M8 199C20 186 32 168 50 159M18 200C28 188 38 174 52 167M30 200C38 190 44 182 54 177')
+    out += p.line('M88 150q4-6 9-4M93 156q5-5 9-2M80 147q3-6 8-6', 'inner')
     return out
 
 
@@ -386,7 +407,7 @@ def seedling(p: Pen) -> str:
 
 SCENES = {
     'valley': valley, 'notebook': notebook, 'clockwork': clockwork, 'teacup': teacup,
-    'lantern': lantern, 'crane': crane, 'terminal': terminal, 'seedling': seedling,
+    'fan': fan, 'crane': crane, 'terminal': terminal, 'seedling': seedling,
 }
 
 # scene: (words in name/description, languages)
@@ -402,7 +423,7 @@ TOPICS = {
     'teacup': ({'notes', 'note', 'docs', 'doc', 'documentation', 'blog', 'writing', 'journal', 'diary', 'book',
                 'reading', 'awesome', 'list', 'resume', 'cv'},
                {'Markdown', 'TeX', 'MDX', 'reStructuredText'}),
-    'lantern': ({'app', 'ui', 'ios', 'android', 'mobile', 'desktop', 'gui', 'game', 'widget', 'extension',
+    'fan': ({'app', 'ui', 'ios', 'android', 'mobile', 'desktop', 'gui', 'game', 'widget', 'extension',
                  'player', 'client'},
                 {'Swift', 'Kotlin', 'Dart', 'C#', 'Java', 'Objective-C', 'GDScript'}),
     'crane': ({'algorithm', 'algorithms', 'leetcode', 'contest', 'solution', 'solutions', 'practice', 'puzzle',

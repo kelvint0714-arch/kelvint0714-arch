@@ -36,7 +36,7 @@ class SceneTest(unittest.TestCase):
     def test_topics_pick_fitting_scenes(self):
         cases = {'contest-solutions': ('C++', 'ICPC solutions', 'crane'), 'dotfiles': ('Shell', None, 'terminal'),
                  'reading-notes': (None, 'notes on books', 'teacup'), 'raytracer': ('Rust', None, 'clockwork'),
-                 'todo-app': ('Swift', 'an iOS app', 'lantern')}
+                 'todo-app': ('Swift', 'an iOS app', 'fan')}
         for name, (lang, desc, scene) in cases.items():
             self.assertEqual(vignettes.ranked(repo(name, lang, desc))[0], scene, name)
 
