@@ -1,8 +1,8 @@
 {
  "user": "kelvint0714-arch",
- "fetched_at": "2026-10-28T07:33:42Z",
+ "fetched_at": "2026-10-28T09:26:16Z",
  "calendar": {
-  "total": 164,
+  "total": 167,
   "days": [
    [
     "2025-10-26",
@@ -1281,7 +1281,7 @@
    ],
    [
     "2026-07-08",
-    2,
+    1,
     4
    ],
    [
@@ -1316,7 +1316,7 @@
    ],
    [
     "2026-07-15",
-    2,
+    1,
     4
    ],
    [
@@ -1366,12 +1366,12 @@
    ],
    [
     "2026-07-25",
-    2,
+    1,
     4
    ],
    [
     "2026-07-26",
-    2,
+    1,
     4
    ],
    [
@@ -1381,7 +1381,7 @@
    ],
    [
     "2026-07-28",
-    2,
+    1,
     4
    ],
    [
@@ -1781,7 +1781,7 @@
    ],
    [
     "2026-10-16",
-    2,
+    1,
     4
    ],
    [
@@ -1842,7 +1842,7 @@
    [
     "2026-10-28",
     4,
-    13
+    16
    ]
   ]
  },
@@ -1883,6 +1883,70 @@
   "HTML": 1472
  },
  "events": [
+  {
+   "type": "PullRequestEvent",
+   "repo": "kelvint0714-arch/kelvint0714-arch",
+   "created_at": "2026-10-28T09:25:59Z",
+   "payload": {
+    "action": "merged",
+    "number": 3,
+    "pull_request": {
+     "url": "https://api.github.com/repos/kelvint0714-arch/kelvint0714-arch/pulls/3",
+     "id": 5048152128,
+     "number": 3,
+     "head": {
+      "ref": "tend-on-latest-main",
+      "sha": "a2867001e1394163011f02f92ed004f850687a7b",
+      "repo": {
+       "id": 1422996978,
+       "url": "https://api.github.com/repos/kelvint0714-arch/kelvint0714-arch",
+       "name": "kelvint0714-arch"
+      }
+     },
+     "base": {
+      "ref": "main",
+      "sha": "82e62007757416a2bc41007d379d3b7a8af70551",
+      "repo": {
+       "id": 1422996978,
+       "url": "https://api.github.com/repos/kelvint0714-arch/kelvint0714-arch",
+       "name": "kelvint0714-arch"
+      }
+     }
+    }
+   }
+  },
+  {
+   "type": "PullRequestEvent",
+   "repo": "kelvint0714-arch/kelvint0714-arch",
+   "created_at": "2026-10-28T09:25:29Z",
+   "payload": {
+    "action": "opened",
+    "number": 3,
+    "pull_request": {
+     "url": "https://api.github.com/repos/kelvint0714-arch/kelvint0714-arch/pulls/3",
+     "id": 5048152128,
+     "number": 3,
+     "head": {
+      "ref": "tend-on-latest-main",
+      "sha": "a2867001e1394163011f02f92ed004f850687a7b",
+      "repo": {
+       "id": 1422996978,
+       "url": "https://api.github.com/repos/kelvint0714-arch/kelvint0714-arch",
+       "name": "kelvint0714-arch"
+      }
+     },
+     "base": {
+      "ref": "main",
+      "sha": "82e62007757416a2bc41007d379d3b7a8af70551",
+      "repo": {
+       "id": 1422996978,
+       "url": "https://api.github.com/repos/kelvint0714-arch/kelvint0714-arch",
+       "name": "kelvint0714-arch"
+      }
+     }
+    }
+   }
+  },
   {
    "type": "PullRequestEvent",
    "repo": "kelvint0714-arch/kelvint0714-arch",
