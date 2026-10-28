@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 from urllib.parse import urlparse
 sys.path.insert(0,str(Path(__file__).resolve().parent))
-from garden import data, manga
+from garden import data, manga, vignettes
 ROOT=Path(__file__).resolve().parent.parent
 README=ROOT/'README.md'
 SNAPSHOT=ROOT/'data'/'snapshot.json'
@@ -49,13 +49,14 @@ def cards(repos: list[dict],out: Path) -> str:
     out.mkdir(parents=True,exist_ok=True)
     public=[r for r in repos if not r.get('private')]
     parts=[];plain=[];generated=set()
+    scenes=vignettes.assign(public)
     for index,repo in enumerate(public):
         name=str(repo['name']);link=safe_link(repo['html_url']);slug=manga.repo_slug(repo)
         for mobile in (False,True):
             for theme in ('light','dark'):
                 suffix='-mobile' if mobile else ''
                 target=out/f'{slug}-{theme}{suffix}.svg'
-                target.write_text(manga.repo_card(theme,repo,index,mobile).render(),encoding='utf-8')
+                target.write_text(manga.repo_card(theme,repo,index,mobile,scenes[name]).render(),encoding='utf-8')
                 generated.add(target.name)
         tags=' / '.join(x for x in [repo.get('language') or 'Language not specified','fork' if repo.get('fork') else '', 'archived' if repo.get('archived') else ''] if x)
         alt=f"{name}. {repo.get('description') or 'No description provided.'} {tags}. {repo.get('stargazers_count') or 0} stars. Updated {(repo.get('pushed_at') or '—')[:10]}. Open repository."
