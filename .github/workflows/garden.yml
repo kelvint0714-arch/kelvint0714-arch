@@ -6,6 +6,11 @@ on:
     # A run only commits when the public data actually changed.
     - cron: "7,22,37,52 * * * *"
   workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Draw everything but don't commit or push"
+        type: boolean
+        default: false
   push:
     branches: [main]
     paths:
@@ -23,50 +28,58 @@ concurrency:
 
 jobs:
   tend:
-    runs-on: ubuntu-latest
+    # Pinned rather than ubuntu-latest, which is moving to Ubuntu 26.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
       contents: write
     steps:
-      - name: Check out profile
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      # Always tend the newest main. A run queued behind other pushes, or re-run
+      # later from an old commit, would otherwise redraw from stale code.
+      - name: Check out the latest main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
 
       - name: Set up Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
 
       - name: Install fontTools
         run: python -m pip install fonttools==4.63.0
 
-      - name: Check the builders
-        run: python -m unittest discover -s scripts -p "test_*.py"
-
-      - name: Draw the section headers
-        run: python scripts/build_sections.py
-
-      - name: Draw the bloom log from public data
+      - name: Tend, commit and push
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: python scripts/build_metrics.py
-
-      - name: Refresh the repository table
-        run: python scripts/update_repositories.py
-
-      - name: Commit the refreshed garden
+          DRY_RUN: ${{ inputs.dry-run || false }}
         run: |
-          git add README.md assets data
-          if git diff --cached --quiet; then
-            exit 0
-          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "Refresh the garden"
-          # Files uploaded on github.com while this ran would reject a plain push; replay on top and retry.
+          # Everything committed here is generated. If main moves while we draw,
+          # start again from the new main instead of rebasing generated files.
           for attempt in 1 2 3; do
-            if git push; then
+            git fetch --quiet origin main
+            git reset --quiet --hard origin/main
+            python -m unittest discover -s scripts -p "test_*.py"
+            python scripts/build_sections.py
+            python scripts/build_metrics.py
+            python scripts/update_repositories.py
+            git add README.md assets data
+            if git diff --cached --quiet; then
+              echo "Nothing changed."
               exit 0
             fi
-            git pull --rebase
+            if [ "$DRY_RUN" = "true" ]; then
+              git diff --cached --stat
+              echo "Dry run: not committing."
+              exit 0
+            fi
+            git commit --quiet -m "Refresh the garden"
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "main moved during the run (attempt $attempt); redrawing on top of it."
+            sleep $((attempt * 5))
           done
           exit 1
