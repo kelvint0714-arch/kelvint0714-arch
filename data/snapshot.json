@@ -1,6 +1,6 @@
 {
  "user": "kelvint0714-arch",
- "fetched_at": "2026-10-29T02:57:02Z",
+ "fetched_at": "2026-10-29T09:50:56Z",
  "calendar": {
   "total": 167,
   "days": [
@@ -1888,6 +1888,54 @@
   "HTML": 1472
  },
  "events": [
+  {
+   "type": "DeleteEvent",
+   "repo": "kelvint0714-arch/kelvint0714-arch",
+   "created_at": "2026-10-28T09:26:17Z",
+   "payload": {
+    "ref": "tend-on-latest-main",
+    "ref_type": "branch",
+    "full_ref": "refs/heads/tend-on-latest-main",
+    "pusher_type": "user"
+   }
+  },
+  {
+   "type": "PushEvent",
+   "repo": "kelvint0714-arch/kelvint0714-arch",
+   "created_at": "2026-10-28T09:26:01Z",
+   "payload": {
+    "repository_id": 1422996978,
+    "push_id": 48073721285,
+    "ref": "refs/heads/main",
+    "head": "40ceba2c4439cf66b5dc006b2747f37ecff4753e",
+    "before": "82e62007757416a2bc41007d379d3b7a8af70551"
+   }
+  },
+  {
+   "type": "CreateEvent",
+   "repo": "kelvint0714-arch/kelvint0714-arch",
+   "created_at": "2026-10-28T09:24:03Z",
+   "payload": {
+    "ref": "tend-on-latest-main",
+    "ref_type": "branch",
+    "full_ref": "refs/heads/tend-on-latest-main",
+    "master_branch": "main",
+    "description": "Kelvin とう · 薫る花は凛と咲く — a kikyo garden profile",
+    "pusher_type": "user"
+   }
+  },
+  {
+   "type": "PushEvent",
+   "repo": "kelvint0714-arch/kelvint0714-arch",
+   "created_at": "2026-10-28T05:20:38Z",
+   "payload": {
+    "repository_id": 1422996978,
+    "push_id": 48052607464,
+    "ref": "refs/heads/repo-vignettes",
+    "head": "afe3403956542f62fd879f0a7297dbeda0a3226b",
+    "before": "caa7ae4b30593abbc668cd433700755b07e1c39e"
+   }
+  },
   {
    "type": "DeleteEvent",
    "repo": "kelvint0714-arch/kelvint0714-arch.github.io",
