@@ -24,21 +24,10 @@
 </picture>
 </a>
 
-<a href="https://github.com/kelvint0714-arch/ML-practice">
-<picture>
-  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/ink-v2/repos/ml-practice-0c95dec-dark-mobile.svg" />
-  <source media="(max-width: 600px)" srcset="./assets/ink-v2/repos/ml-practice-0c95dec-light-mobile.svg" />
-  <source media="(prefers-color-scheme: dark)" srcset="./assets/ink-v2/repos/ml-practice-0c95dec-dark.svg" />
-  <img src="./assets/ink-v2/repos/ml-practice-0c95dec-light.svg" width="100%" alt="ML-practice. this Jupyter Notebook. 2 stars. Updated 2026-09-01. Open repository." />
-</picture>
-</a>
-
 <details>
 <summary>Repository text index / 仓库文字索引</summary>
 
 <p><a href="https://github.com/kelvint0714-arch/kelvint0714-arch.github.io"><strong>kelvint0714-arch.github.io</strong></a><br />Event Horizon — Kelvin Tang&#x27;s personal homepage · Kelvin Tang 的个人主页<br /><sub>TypeScript</sub></p>
-
-<p><a href="https://github.com/kelvint0714-arch/ML-practice"><strong>ML-practice</strong></a><br />this<br /><sub>Jupyter Notebook</sub></p>
 
 </details>
 <!-- GARDEN-REPOS:END -->
