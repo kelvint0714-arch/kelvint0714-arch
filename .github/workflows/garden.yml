@@ -15,7 +15,6 @@ on:
     branches: [main]
     paths:
       - "garden.json"
-      - "fonts/**"
       - "scripts/**"
       - ".github/workflows/garden.yml"
 
@@ -46,8 +45,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install fontTools
-        run: python -m pip install fonttools==4.63.0
+      # The builders use only the standard library, so there is nothing to install.
 
       - name: Tend, commit and push
         env:

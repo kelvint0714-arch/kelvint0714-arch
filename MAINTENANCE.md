@@ -1,103 +1,80 @@
 # 维护说明 · Ink & Petals
 
-本版只调整 `kelvint0714-arch/kelvint0714-arch` 的 GitHub 个人资料页。不是独立的 `kelvint0714-arch.github.io` 网站。页首视频横幅、横幅构建脚本、个人信息、数据采集策略、每日工作流保持原样。
+这个仓库就是 GitHub 个人资料页 `kelvint0714-arch/kelvint0714-arch`（不是 `kelvint0714-arch.github.io` 网站）。README 里除了顶部视频横幅，每一张图都是 `scripts/` 生成的 SVG。**改图请改脚本，不要手改 SVG**：自动刷新每 15 分钟会把 `assets/` 重画一遍。
+
+## 目录
+
+```
+README.md            个人资料页；GARDEN-REPOS 区域由脚本改写，其余手写
+garden.json          用户名、时区、两个章节的标题文字
+assets/
+  banner*.webp       视频横幅（build_banner.py 生成，不参与自动刷新）
+  sections/          章节标题与页脚           ← build_sections.py
+  metrics/           花暦、言語の花束、花便り   ← build_metrics.py
+  repos/             每个公开仓库一张卡片       ← update_repositories.py
+data/snapshot.json   最近一次公开数据；网络失败时的回退
+banners/             横幅的原视频（不提交）和 config.json
+fonts/               Great Vibes（OFL），只给 build_lettering.py 用
+scripts/
+  build_*.py, update_repositories.py   入口脚本
+  garden/data.py         从 GitHub 读取公开数据
+  garden/manga.py        共用绘图：颜色、线宽、网点、花、卡片、标题
+  garden/calendar3d.py   立体花床日历
+  garden/vignettes.py    仓库卡片上的八幅小场景
+  garden/manga_lettering.json   排好的花体标题轮廓（build_lettering.py 生成）
+  test_*.py              测试
+```
+
+## 常用命令
+
+```bash
+make test      # 运行全部测试
+make offline   # 用 data/snapshot.json 重画全部图，不联网
+make build     # 联网取最新数据后重画
+make format    # 用 black 统一 Python 格式（需先 pip install black）
+```
+
+日常绘图只用 Python 标准库。`make lettering` 需要 `fonttools`，`make banner` 需要 ffmpeg 和 Pillow。
 
 ## 视觉规则
 
-彩色漫画分镜：保留原来的粗细墨线、叶脉排线和网点，再按头像配色上平涂（赛璐璐式）颜色——樱花粉、头发高光的淡紫、眼睛的蓝、肤色的桃色、叶子的绿，墨线为紫黑色 `#2a2330`。没有渐变、立体高光或模糊阴影，层次仍靠墨线和网点。浅色和深色主题使用同一张暖白纸面，不反成负片；GitHub 页面外侧背景由 GitHub 自己控制。大标题采用 Great Vibes 花体矢量字形，仓库精确名称、说明、时间、语言和百分比使用清楚的正文。
+彩色漫画分镜：紫黑墨线 `#2a2330` 加平涂（赛璐璐式）颜色，配色取自头像——樱花粉、头发高光的淡紫、眼睛的蓝、肤色的桃色、叶子的绿。没有渐变、模糊、滤镜、外部字体、脚本或图片；层次靠墨线、排线和网点。浅色和深色主题用同一张暖白纸面。
 
-所有颜色集中在 `scripts/garden/manga.py` 的 `COLOURS`：`petals` 是四组花色（填色、网点、深色），`levels` 是日历 1–4 级的花色，`bars` 是语言条的颜色。网点和排线的默认颜色在 `TONE_INK` / `TONE_WASH`。改配色只改这几处即可。
+- **颜色**：全部集中在 `manga.py` 的 `COLOURS`。`petals` 是四组花色（填色、网点、深色），`levels` 是日历 1–4 级的花色，`bars` 是语言条的颜色；网点和排线的默认颜色在 `TONE_INK` / `TONE_WASH`。
+- **线宽**：按 GitHub 上实际显示的大小来定（README 正文桌面约 830 px 宽，手机约 358 px）。`NIB` 规定三级线宽：轮廓 1.6、内线 1.1、细节 0.85，每个笔画用 `nib(k, 层级)` 换算，`k` 是该图在屏幕上的累计缩放。几十像素的小图用 `taper()` 把线宽降到最低 60%。不要写死 `stroke-width`。
+- **网点**：`tone()` 按同一缩放生成，屏幕上的间距固定，调整改 `TONES` 和 `HATCH`。
+- **标题**：大标题是 Great Vibes 花体的固定轮廓路径（`manga_lettering.json`），不嵌字体。新增或修改标题文字后运行 `make lettering`；没有轮廓的标题会退回普通衬线字，不会缺字。仓库名、说明、日期、语言和百分比都是普通文字。
+- **尺寸**：每张图有浅/深 × 桌面/手机四个版本（`manga.variants()`），README 的 `<picture>` 以 600 px 为断点。
 
-- 章节标题：保留 `garden.json` 的章节结构。两种现有章节标题有完整的花体字形作品，改成其他标题时会使用可读衬线字回退，不会缺字。
-- 仓库：每个公开仓库生成一个带链接的独立分镜卡片。个人网站展示名为 `A Quiet Valley`，ML-practice 展示名为 `Machine Learning`；精确仓库名仍完整保留在卡片及文字索引内，真实仓库没有被重命名。新仓库会自动生成 `Repository` 花体标题和对应真实名称，不需要手工增补卡片。
-- 日历：一个日期一个标记，保持 GitHub 原始计数和等级；以花形大小和墨色密度区分等级。手机采用上下两段周列，而非把一年压到不可读的窄图里。
-- 语言花束：按公开非 fork 仓库代码字节计算；六项以上合并尾部为 Other，分母仍是全部代码字节数。花束只做装饰，准确比例看条形长度和百分比。
-- 活动：保留原有 30 天筛选、同日同分支推送合并和最多五条记录的规则。
+## 各张卡片
 
-## 线条粗细与网点
+- **章节标题**：文字来自 `garden.json`。
+- **仓库卡片**：每个公开仓库一张，带链接，下面还有可展开的文字索引。`repo_card()` 里的 `aliases` 给仓库起花体展示名（个人网站为 `A Quiet Valley`），没有别名的显示 `Repository`；真实仓库名始终完整显示。删除的仓库会自动清掉对应 SVG。
+- **小场景**：`vignettes.assign()` 按仓库名、描述和语言里的关键词（`TOPICS`）挑场景，同分时按名字哈希稳定排序，八幅用完前不重复。新增场景在 `SCENES` 注册一个函数，坐标范围 290 × 215，右下角留给 OPEN 按钮。
 
-线宽按 GitHub 实际显示的大小来定，而不是按画布单位：README 正文在桌面上约 830 CSS 像素宽，手机上约 358，所以 960 宽的图显示为约 0.86 倍，480 宽的约 0.75 倍。`scripts/garden/manga.py` 里的 `NIB` 规定三级线宽（显示后的像素）：轮廓 1.6、内线 1.1、细节 0.85。每个笔画用 `nib(k, 层级)` 换算，`k` 是这幅图在屏幕上的累计缩放（显示缩放 × `place()` 缩放），所以嵌套在小插图里的花也保持同样的笔触。只有几十像素大的小图会用 `taper()` 把线宽减到最低 60%，避免轮廓糊成实心黑块。
+  | 场景 | 内容 | 适合 |
+  |---|---|---|
+  | `valley` | 塔、阶梯和山谷 | 个人主页、网站、前端 |
+  | `notebook` | 长出叶子的损失曲线 | 机器学习、数据、Python / Jupyter |
+  | `clockwork` | 怀表齿轮里的玫瑰 | C / C++ / Rust / Go、系统 |
+  | `teacup` | 热气化成樱花的茶杯 | 笔记、文档、博客 |
+  | `fan` | 画着樱枝的折扇 | 应用、界面、游戏 |
+  | `crane` | 浪上的纸鹤 | 算法、竞赛、题解、课程 |
+  | `terminal` | 长出藤蔓的终端 | 命令行工具、脚本、dotfiles |
+  | `seedling` | 浇水中的幼苗 | 其他（兜底） |
 
-花朵按屏幕上的大小取舍细节：大花保留全部花瓣层、折痕和排线，小花只留轮廓、墨色月牙和网点。网点和排线由 `tone()` 按同一缩放生成（屏幕上的间距和点径固定，45° 排列），不会在普通屏幕上糊成灰块。日历的空白日期是浅色平块，有贡献的日期才有墨线和花，让数据更醒目。
-
-调整线条时改 `NIB`、`TONES`、`HATCH` 即可，不要再写死 `stroke-width` 数值。
-
-## 仓库插图
-
-每张仓库卡片右侧（手机上是标题上方的横条）有一幅墨线小场景，全部在 `scripts/garden/vignettes.py` 里，共八幅：
-
-| 场景 | 内容 | 适合的仓库 |
-|---|---|---|
-| `valley` | 塔、阶梯和事件视界下的山谷 | 个人主页、网站、前端 |
-| `notebook` | 实验笔记：长出叶子的损失曲线、花朵组成的小神经网络 | 机器学习、数据、研究、Python / Jupyter |
-| `clockwork` | 打开的怀表，齿轮里长出一朵玫瑰 | C / C++ / Rust / Go、系统、引擎 |
-| `teacup` | 茶杯的热气化成樱花 | 笔记、文档、博客、清单 |
-| `fan` | 展开的折扇，扇面画着樱枝 | 应用、界面、游戏、Swift / Kotlin / C# |
-| `crane` | 浪上的纸鹤 | 算法、竞赛、题解、练习、课程 |
-| `terminal` | 屏幕里长出藤蔓的小终端 | 命令行工具、脚本、dotfiles |
-| `seedling` | 浇水中的盆栽幼苗 | 其他所有仓库（兜底） |
-
-`update_repositories.py` 用 `vignettes.assign()` 给每个公开仓库挑场景：仓库名、描述和语言里出现的关键词决定匹配度，同分时按仓库名的哈希稳定排序；八幅都用过之前不会重复。想给某个仓库换场景，改 `TOPICS` 里的关键词即可；想加新场景，在 `SCENES` 里注册一个函数，坐标范围 290 × 215，右下角留给 OPEN 按钮。
-
-## 文件职责
-
-| 模块 | 文件 | 输出 |
-|---|---|---|
-| 章节标题和页脚 | `scripts/build_sections.py` | `assets/ink-v2/sections/*.svg` |
-| 贡献、语言和活动 | `scripts/build_metrics.py` | `assets/ink-v2/metrics/*.svg` |
-| 仓库展示 | `scripts/update_repositories.py` | `assets/ink-v2/repos/*.svg` 与 README 的 GARDEN-REPOS 区域 |
-| 共用漫画绘图 | `scripts/garden/manga.py` | 墨线花、网点、分镜和字体布局 |
-| 固定标题字形 | `scripts/garden/manga_lettering.json` | 已排版好的整段标题路径；不是字体文件 |
-| 重建标题字形 | `scripts/build_lettering.py` | 用 `fonts/GreatVibes-Regular.ttf`（OFL）重新生成上面的 JSON；只在换字体或新增标题时运行 |
-| 真实数据 | `scripts/garden/data.py` | 保持原文件不变 |
-
-SVG 不引入外部字体、脚本或图片。标题路径是固定的完整字形作品；动态的仓库说明和数据仍是实际文字。没有将整页内容锁在一张不能点击的图片中：每张项目图的外层都有普通 HTML 链接，下面还有可展开的仓库文字索引。
-
-每张图输出浅/深色与桌面/手机共四个版本。README 的 `<picture>` 使用 600 CSS 像素断点；卡片统一为全宽，手机不再并排挤两张小卡。源码静止时即为完整画面。上方视频的减少动态效果替代封面继续保留。
+- **花暦（日历）**：一个日期一个花台，计数和等级与 GitHub 完全一致，等级只决定花台高度和花的大小。手机分成上下两个半年花床。
+- **言語の花束**：按公开、非 fork 仓库的代码字节计算；超过六种时把尾部合并为 Other，分母仍是全部字节。
+- **花便り**：最近 30 天内最多五条公开动态，同一天推到同一分支的合并成一条。
 
 ## 自动刷新
 
-沿用 `.github/workflows/garden.yml`，不需要更改权限或工作流。原工作流会依次执行测试、章节绘制、指标数据刷新及仓库展示刷新。脚本仍支持使用 `data/snapshot.json` 作为网络失败回退。
+[Tend the garden](.github/workflows/garden.yml) 每 15 分钟运行一次，修改 `garden.json`、`scripts/` 或工作流后也会立即运行，也可以在 Actions 页面手动运行（可勾选 dry-run：只测试和绘制，不提交）。
 
-更新时必须同时提交 `scripts/` 与 `assets/`，否则自动刷新可能继续运行旧的粉色绘制代码。最新仓库列表决定 README 中显示哪些项目；本版自动清除不再显示的、由它自己生成的旧项目 SVG，其他文件名不受影响。上方 `assets/banner.webp` 和 `assets/banner-static.webp` 不在此更新包内，也不会被这些脚本重画。
+每次都从最新的 `main` 开始：跑测试 → 重画全部图 → 只有公开数据真的变化时才提交 "Refresh the garden"（只换了获取时间的快照不算变化）。如果绘制期间 `main` 有新提交，它会丢弃自己的结果，在新的 `main` 上重画，最多重试三次。
 
-## 本地构建与测试
+所以修改绘图时，把 `scripts/` 和重新生成的 `assets/` 一起提交（先 `make offline`），否则在自动刷新之前页面会短暂显示旧图。
 
-在原仓库根目录执行：
+## 数据
 
-```bash
-python3 -m unittest discover -s scripts -p 'test_*.py'
-python3 scripts/build_sections.py
-python3 scripts/build_metrics.py --offline
-python3 scripts/update_repositories.py
-```
-
-去掉 `--offline` 才会重新获取 GitHub 数据。本版素材生成不需要新增字体下载；原工作流已有的 fontTools 安装步骤保留无害。原仓库的旧 `flora.py`、`palette.py`、`depth.py` 与字体目录无需删除，以免影响其他旧脚本。
-
-## 数据与范围
-
-代码只改变呈现方式，不修改仓库描述、星标、语言数据、贡献计数或事件。预览中的 `this` 与 `Event Horizon …` 是数据快照里的原始仓库描述，不是重新编写的新介绍。后续修改 GitHub 仓库描述后，自动刷新会显示新值。
-
-本次本地预览使用仓库已有快照，时间为 `2026-10-17T09:47:03Z`。本次已读取用户上传的头像原图，以粗细墨线、实黑、留白和网点作为参考；不将头像原图添加到仓库，也不改变账户头像。预览数据是先前项目快照，不代表新的实时统计；本包不包含 data/snapshot.json。
-
-## INK V2：必须整套应用
-
-所有自定义图均位于 `assets/ink-v2/`。两组标题、每张仓库卡片、贡献日历、语言花束、活动记录和页脚全部使用此目录；只有原视频及静态封面继续位于 `assets/banner*.webp`。
-
-这里没有用灰度滤镜处理旧图。花朵重新用路径绘制；墨黑叶片和缎带提供实黑层次；花瓣以线条、网点和不透明遮叠表现前后；进度条使用黑墨、网点及排线；活动条目采用分镜式对白框，而非有立体高光的胶囊卡片。
-
-语言花束在手机版仍显示完整插画。旧 `assets/metrics/`、`assets/sections/`、`assets/repos/` 保留用于回滚，但新的 README 不再引用它们。不要删除视频文件，也不要将此更新应用到独立网站仓库。
-
-新加 `scripts/test_ink_edition.py`，防止以后仅部分组件改为线稿、或资源引用回到旧目录。标题的固定矢量作品已包含在包内，无字体文件。
-
-本地验证：26 项单元测试、32 张 SVG 的结构与中性灰颜色校验、四版日历逐日字段比对，以及 12 组桌面/手机与主题组合检查；未在用户手机实机或线上 GitHub 页面验证发布效果。现有数据辅助模块在测试环境中与当前仓库 blob `51830ec16893cfca324d22fd40b989a875373e17` 完全一致。
-
-## 自动刷新
-
-[Tend the garden](.github/workflows/garden.yml) 每 15 分钟运行一次（GitHub 的定时任务偶尔会延后几分钟），也会在修改 `garden.json`、`scripts/`、`fonts/` 后立即运行，或在 Actions 页面手动运行。新的公开仓库会自动生成卡片，删除的仓库会移除卡片；新提交、新语言和新动态会更新花暦、言語の花束和花便り。
-
-只有公开数据真的变化时才会提交。只更换了获取时间的快照不会写入，所以没有新动态时不会产生 "Refresh the garden" 提交。
-
-每次运行都基于最新的 `main` 绘制，而不是触发它的那个提交，所以重新运行一个旧的运行也没问题。如果绘制期间 `main` 有了新提交（比如你在 github.com 上传了文件），工作流会丢弃自己生成的图，在新的 `main` 上重新绘制再推送，最多重试三次，不会去合并生成文件。
-
-在 Actions 页面手动运行时可以勾选 dry-run：照常测试和绘制，但不提交、不推送，用来检查改动。
+脚本只改变呈现方式，不改动仓库描述、星标、语言、贡献计数或动态。`GITHUB_TOKEN` 只用来提高 API 限额；日历从公开主页读取，不需要登录。

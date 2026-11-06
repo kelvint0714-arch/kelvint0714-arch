@@ -8,3 +8,4 @@ banners/*.mov
 banners/*.webm
 banners/*.mkv
 banners/*.m4v
+.venv/

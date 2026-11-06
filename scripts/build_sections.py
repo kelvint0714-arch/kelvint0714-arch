@@ -1,28 +1,31 @@
-"""Render manga chapter titles in desktop/mobile and light/dark versions."""
+"""Draw the chapter headings and the footer in every theme and width."""
+
 from __future__ import annotations
 import json
 import sys
 from pathlib import Path
-sys.path.insert(0,str(Path(__file__).resolve().parent))
-from garden import manga
-ROOT=Path(__file__).resolve().parent.parent
 
-def build(theme: str, section: dict, index: int):
-    return manga.header(theme,section,index)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from garden import manga
+
+ROOT = Path(__file__).resolve().parent.parent
+
 
 def main() -> int:
-    config=json.loads((ROOT/'garden.json').read_text(encoding='utf-8'))
-    out=ROOT/'assets'/'ink-v2'/'sections';out.mkdir(parents=True,exist_ok=True)
-    for index,section in enumerate(config['sections']):
-        for mobile in (False,True):
-            for theme in ('light','dark'):
-                suffix='-mobile' if mobile else ''
-                path=out/f"header-{section['id']}-{theme}{suffix}.svg"
-                path.write_text(manga.header(theme,section,index,mobile).render(),encoding='utf-8')
-                print(path.name)
-    for mobile in (False,True):
-        for theme in ('light','dark'):
-            suffix='-mobile' if mobile else ''
-            (out/f'footer-{theme}{suffix}.svg').write_text(manga.footer(theme,mobile).render(),encoding='utf-8')
+    config = json.loads((ROOT / "garden.json").read_text(encoding="utf-8"))
+    out = ROOT / "assets" / "sections"
+    out.mkdir(parents=True, exist_ok=True)
+    for index, section in enumerate(config["sections"]):
+        for theme, mobile, suffix in manga.variants():
+            path = out / f"header-{section['id']}-{theme}{suffix}.svg"
+            path.write_text(manga.header(theme, section, index, mobile).render(), encoding="utf-8")
+            print(path.name)
+    for theme, mobile, suffix in manga.variants():
+        (out / f"footer-{theme}{suffix}.svg").write_text(
+            manga.footer(theme, mobile).render(), encoding="utf-8"
+        )
     return 0
-if __name__=='__main__':sys.exit(main())
+
+
+if __name__ == "__main__":
+    sys.exit(main())
