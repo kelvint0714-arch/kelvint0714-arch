@@ -5,7 +5,7 @@
 </picture>
 <!-- BANNER:END -->
 
-<!-- MANGA-EDITION: ink-v2 / ALL non-video visuals: paper, ink, hatching and screentone -->
+<!-- MANGA-EDITION: ink-v2 colour / ALL non-video visuals: warm paper, violet ink, flat cel colour, script headings -->
 
 <picture>
   <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/ink-v2/sections/header-garden-dark-mobile.svg" />

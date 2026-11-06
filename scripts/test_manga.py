@@ -44,13 +44,13 @@ class MangaTest(unittest.TestCase):
         root=ET.fromstring(manga.bouquet_card('light',snap).render())
         bars=[e for e in root.iter() if 'data-bytes' in e.attrib]
         self.assertEqual(len(bars),6);self.assertEqual(sum(int(e.attrib['data-bytes']) for e in bars),45)
-    def test_every_color_is_monochrome(self):
+    def test_every_card_is_in_colour_with_ink_outlines(self):
         for theme in manga.THEMES:
             docs=[manga.calendar_card(theme,sample()),manga.bouquet_card(theme,sample()),manga.repo_card(theme,repository(),0),manga.header(theme,{'number':'01','title':'PROJECT GARDEN'},0)]
             for doc in docs:
-                colors=re.findall(r'#[0-9a-fA-F]{6}\b',doc.render())
-                self.assertTrue(colors)
-                for c in colors:self.assertEqual(c[1:3].lower(),c[3:5].lower());self.assertEqual(c[3:5].lower(),c[5:7].lower())
+                s=doc.render();colors={c.lower() for c in re.findall(r'#[0-9a-fA-F]{6}\b',s)}
+                self.assertIn(manga.THEMES[theme]['ink'],colors)
+                self.assertTrue(any(c[1:3]!=c[3:5] or c[3:5]!=c[5:7] for c in colors),doc.title)
     def test_no_blur_gradients_external_fonts_or_scripts(self):
         rendered=manga.header('light',{'number':'01','title':'PROJECT GARDEN'},0).render()
         for needle in ('<filter','<script','<foreignObject','<linearGradient','<radialGradient','@font-face','data:font'):
