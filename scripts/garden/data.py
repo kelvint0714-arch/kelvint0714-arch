@@ -57,8 +57,13 @@ def parse_calendar(page: str) -> tuple[list[Day], int]:
         attrs = dict(ATTR_RE.findall(tag))
         if "data-date" not in attrs:
             continue
-        days.append(Day(date.fromisoformat(attrs["data-date"]), int(attrs.get("data-level", 0)),
-                        counts.get(attrs.get("id", ""), 0)))
+        days.append(
+            Day(
+                date.fromisoformat(attrs["data-date"]),
+                int(attrs.get("data-level", 0)),
+                counts.get(attrs.get("id", ""), 0),
+            )
+        )
     days.sort(key=lambda d: d.date)
     total = TOTAL_RE.search(re.sub(r"\s+", " ", page))
     return days, int(total.group(1).replace(",", "")) if total else sum(d.count for d in days)
@@ -123,13 +128,30 @@ def collect(user: str) -> dict:
         "calendar": {"total": total, "days": [[d.date.isoformat(), d.level, d.count] for d in days]},
         "profile": {"followers": profile.get("followers", 0), "public_repos": profile.get("public_repos", 0)},
         "repos": [
-            {k: r.get(k) for k in ("name", "full_name", "html_url", "description", "language", "fork",
-                                    "stargazers_count", "pushed_at", "archived")}
+            {
+                k: r.get(k)
+                for k in (
+                    "name",
+                    "full_name",
+                    "html_url",
+                    "description",
+                    "language",
+                    "fork",
+                    "stargazers_count",
+                    "pushed_at",
+                    "archived",
+                )
+            }
             for r in repos
         ],
         "languages": fetch_languages(repos),
         "events": [
-            {"type": e["type"], "repo": e["repo"]["name"], "created_at": e["created_at"], "payload": e.get("payload", {})}
+            {
+                "type": e["type"],
+                "repo": e["repo"]["name"],
+                "created_at": e["created_at"],
+                "payload": e.get("payload", {}),
+            }
             for e in fetch_events(user)
         ],
     }

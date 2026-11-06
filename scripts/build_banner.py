@@ -40,14 +40,27 @@ def find_source(config: dict) -> Path:
     if not clips:
         raise SystemExit("Put a video clip (mp4, mov, webm…) in banners/ first")
     if len(clips) > 1:
-        print(f"several clips found; using {clips[0].name} (set \"source\" in banners/config.json to choose)")
+        print(f'several clips found; using {clips[0].name} (set "source" in banners/config.json to choose)')
     return clips[0]
 
 
 def probe(path: Path) -> tuple[int, int, float]:
     out = subprocess.run(
-        ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height:format=duration",
-         "-of", "json", str(path)], check=True, capture_output=True, text=True,
+        [
+            "ffprobe",
+            "-v",
+            "error",
+            "-select_streams",
+            "v:0",
+            "-show_entries",
+            "stream=width,height:format=duration",
+            "-of",
+            "json",
+            str(path),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
     ).stdout
     info = json.loads(out)
     stream = info["streams"][0]
@@ -64,8 +77,23 @@ def extract(path: Path, config: dict, size: tuple[int, int], workdir: Path) -> l
     height = round(width / config["aspect"]) // 2 * 2
     vf = f"fps={config['fps']},crop={crop_w}:{crop_h}:{x}:{y},scale={width}:{height}:flags=lanczos"
     subprocess.run(
-        ["ffmpeg", "-v", "error", "-ss", str(config["start"]), "-t", str(config["duration"]), "-i", str(path),
-         "-vf", vf, "-pix_fmt", "rgb24", str(workdir / "f%04d.png")], check=True,
+        [
+            "ffmpeg",
+            "-v",
+            "error",
+            "-ss",
+            str(config["start"]),
+            "-t",
+            str(config["duration"]),
+            "-i",
+            str(path),
+            "-vf",
+            vf,
+            "-pix_fmt",
+            "rgb24",
+            str(workdir / "f%04d.png"),
+        ],
+        check=True,
     )
     frames = [Image.open(p).convert("RGB") for p in sorted(workdir.glob("f*.png"))]
     if not frames:
@@ -88,12 +116,14 @@ def mask(size: tuple[int, int]) -> Image.Image:
     w, h = size
     scale = 4
     big = Image.new("L", (w * scale, h * scale), 0)
-    ImageDraw.Draw(big).rounded_rectangle((0, 0, w * scale - 1, h * scale - 1), radius=24 * scale * w // 1280, fill=255)
+    ImageDraw.Draw(big).rounded_rectangle(
+        (0, 0, w * scale - 1, h * scale - 1), radius=24 * scale * w // 1280, fill=255
+    )
     shape = big.resize(size, Image.LANCZOS)
     edge = Image.new("L", size, 0)
     inset = max(6, w // 90)
     ImageDraw.Draw(edge).rectangle((inset, inset, w - inset, h - inset), fill=255)
-    edge = edge.filter(ImageFilter.GaussianBlur(inset * .8))
+    edge = edge.filter(ImageFilter.GaussianBlur(inset * 0.8))
     return ImageChops.multiply(shape, edge)
 
 
@@ -104,8 +134,16 @@ def save(frames: list[Image.Image], alpha: Image.Image, config: dict, poster_ind
         frame.putalpha(alpha)
         rgba.append(frame)
     out = ASSETS / "banner.webp"
-    rgba[0].save(out, save_all=True, append_images=rgba[1:], duration=round(1000 / config["fps"]), loop=0,
-                 quality=config["quality"], alpha_quality=90, method=5)
+    rgba[0].save(
+        out,
+        save_all=True,
+        append_images=rgba[1:],
+        duration=round(1000 / config["fps"]),
+        loop=0,
+        quality=config["quality"],
+        alpha_quality=90,
+        method=5,
+    )
     still = ASSETS / "banner-static.webp"
     rgba[min(poster_index, len(rgba) - 1)].save(still, quality=88, alpha_quality=95, method=6)
     return out.stat().st_size, still.stat().st_size
@@ -152,7 +190,9 @@ def main(argv: list[str]) -> int:
     poster = round((config["poster_at"] - config["start"]) * config["fps"])
     frames = loop_blend(frames, config["loop_blend"], config["fps"])
     animated, still = save(frames, mask(frames[0].size), config, max(0, poster))
-    print(f"assets/banner.webp: {len(frames)} frames, {animated / 1e6:.1f} MB; banner-static.webp {still / 1e3:.0f} kB")
+    print(
+        f"assets/banner.webp: {len(frames)} frames, {animated / 1e6:.1f} MB; banner-static.webp {still / 1e3:.0f} kB"
+    )
     if animated > MAX_BYTES:
         print("warning: the banner is large; lower duration, fps, width or quality in banners/config.json")
     readme_block(config, show=True)

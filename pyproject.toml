@@ -1,0 +1,4 @@
+# Tool settings only; this repository is not a Python package.
+[tool.black]
+line-length = 110
+target-version = ["py312"]
