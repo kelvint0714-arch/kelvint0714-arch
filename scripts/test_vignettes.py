@@ -23,8 +23,8 @@ class SceneTest(unittest.TestCase):
                 ids = {e.attrib['id'] for e in root.iter() if 'id' in e.attrib}
                 for ref in re.findall(r'url\(#([^)]*)\)', s):
                     self.assertIn(ref, ids, scene)
-                for c in re.findall(r'#[0-9a-fA-F]{6}\b', s):
-                    self.assertTrue(c[1:3].lower() == c[3:5].lower() == c[5:7].lower(), (scene, c))
+                colors = {c.lower() for c in re.findall(r'#[0-9a-fA-F]{6}\b', s)}
+                self.assertTrue(any(c[1:3] != c[3:5] or c[3:5] != c[5:7] for c in colors), scene)
                 for needle in ('<filter', 'Gradient', '<image', '<script'):
                     self.assertNotIn(needle, s)
 

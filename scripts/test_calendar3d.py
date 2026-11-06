@@ -72,12 +72,13 @@ class Calendar3DTest(unittest.TestCase):
     def test_dense_calendar_is_valid(self):
         s=calendar3d.calendar_card('dark',sample(dense=True),True).render()
         self.assertEqual(len(nodes(s)),371)
-    def test_black_white_without_gradients_blur_or_external_dependencies(self):
+    def test_flat_colour_without_gradients_blur_or_external_dependencies(self):
         s=calendar3d.calendar_card('dark',sample(8)).render()
         for needle in ('<filter','<linearGradient','<radialGradient','<image','<script','<foreignObject','@font-face','data:font','<animate'):
             self.assertNotIn(needle,s)
-        for c in re.findall(r'#[\da-fA-F]{6}\b',s):
-            self.assertEqual(c[1:3],c[3:5]);self.assertEqual(c[3:5],c[5:7])
+        colors={c.lower() for c in re.findall(r'#[\da-fA-F]{6}\b',s)}
+        self.assertIn(calendar3d.INK,colors)
+        for level in range(4):self.assertIn(calendar3d.BLOOM[level][0],colors)
     def test_both_themes_are_the_same_positive_ink_drawing(self):
         self.assertEqual(calendar3d.calendar_card('light',sample(5)).render(),calendar3d.calendar_card('dark',sample(5)).render())
     def test_all_svg_ids_are_unique_and_paint_refs_resolve(self):

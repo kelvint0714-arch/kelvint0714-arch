@@ -1,5 +1,9 @@
 """Manga page components: blackletter headings, tapered ink, hatching and screentones.
 
+Coloured like an anime cel: violet-black ink lines over flat colour taken from
+the profile avatar (sakura pink, lilac hair highlights, eye blue, peach skin,
+leaf green). Colour is always flat; depth still comes from ink and tone.
+
 No remote resources, scripts, embedded fonts, gradients or blur filters in the
 resulting SVGs. Heading paths are complete compositions. Body text remains text
 for arbitrary repository names and descriptions; plain-text links supplement the
@@ -18,9 +22,26 @@ from pathlib import Path
 from . import data
 
 ROOT=Path(__file__).resolve().parents[2]
+# Flat cel colours shared by both themes. Each petal hue is (fill, shade, deep).
+COLOURS=dict(
+ title='#3d2f66',accent='#c95b7d',spark='#e6a93a',heart='#f6d27a',
+ leaf='#bfe0c4',leaf_vein='#4e8a6a',leaf_dark='#3e7a5e',leaf_mid='#79b592',
+ sky='#eef2fd',sky_dot='#b3c3f0',hatch='#9a86cc',petal_dot='#e98fa5',
+ hill='#e3f1e2',gold='#f3dca0',tea='#8a4b2f',cup='#e9eefc',sea='#dbe6fb',
+ pot='#f0b49a',screen_text='#a6e8bc',case='#e6e0f2',
+ levels=('#fde2e7','#f7b3c3','#ec7f9c','#c8466f'),
+ bars=('#e98fa5','#8ea6ea','#a68fd6','#f3ab90','#79b592','#e6b94a'),
+ petals=dict(sakura=('#fbd3da','#e98fa5','#c95b7d'),lilac=('#dccff2','#a68fd6','#7559b0'),
+             peach=('#fde3d3','#f3ab90','#d77a63'),azure=('#cfdcfa','#8ea6ea','#5670c9')))
+# Both themes print on the same warm paper, so stacked cards always match.
 THEMES={
- 'light':dict(paper='#ffffff',ink='#101010',secondary='#444444',faint='#bcbcbc',tone='#eeeeee',deep='#181818'),
- 'dark':dict(paper='#fafafa',ink='#101010',secondary='#444444',faint='#b4b4b4',tone='#eeeeee',deep='#101010')}
+ 'light':dict(COLOURS,paper='#fffaf7',ink='#2a2330',secondary='#5d5263',faint='#d9ccd3',tone='#f3ecef',deep='#2a2330'),
+ 'dark':dict(COLOURS,paper='#fffaf7',ink='#2a2330',secondary='#5d5263',faint='#d9ccd3',tone='#f3ecef',deep='#2a2330')}
+
+def hue(seed,kind='rose'):
+    """A petal colour for a flower: sakura heads stay pink or peach, roses vary."""
+    names=('sakura','sakura','peach') if kind=='sakura' else ('lilac','azure','sakura')
+    return COLOURS['petals'][names[seed%3]]
 
 def esc(text): return html.escape(str(text if text is not None else ''),quote=True)
 def n(value): return f'{float(value):.3f}'.rstrip('0').rstrip('.') or '0'
@@ -54,21 +75,26 @@ def taper(extent,full):
 # Screentone in screen px: (pitch, dot radius), tilted 45 degrees like printed tone.
 TONES={'dense-dots':(3.4,.95),'dots':(6.2,.6),'fine-dots':(4.2,.72),'pale-dots':(4.6,.75)}
 HATCH=(4.4,.8)
+# Default tone colours: blue-sky panels behind drawings, lilac hatching, pink dots.
+TONE_INK={'dots':'sky_dot','hatch':'hatch','edge-hatch':'hatch','fine-dots':'petal_dot'}
+TONE_WASH={'dots':'sky'}
 
 def tone(doc,name,k,ink=None):
     """A screentone pattern sized for scale k, defined once per document."""
     made=doc.__dict__.setdefault('_tones',set())
     pid=f'{name}-{round(k*1000)}'+(f'-{ink[1:].lower()}' if ink else '')
     if pid not in made:
-        made.add(pid);i=ink or doc.pal['ink']
+        made.add(pid);i=ink or doc.pal.get(TONE_INK.get(name),doc.pal['ink'])
+        wash=doc.pal.get(TONE_WASH.get(name)) if not ink else None
+        under=(lambda size:f'<rect width="{n(size)}" height="{n(size)}" fill="{wash}"/>' if wash else '')
         if name.endswith('hatch'):
             pitch,width=HATCH;angle=-32 if name=='edge-hatch' else 32
             doc.defs.append(f'<pattern id="{pid}" width="{n(pitch/k)}" height="{n(pitch/k)}" patternUnits="userSpaceOnUse" '
-                            f'patternTransform="rotate({angle})"><path d="M0 0V{n(pitch/k)}" stroke="{i}" stroke-width="{n(width/k)}"/></pattern>')
+                            f'patternTransform="rotate({angle})">{under(pitch/k)}<path d="M0 0V{n(pitch/k)}" stroke="{i}" stroke-width="{n(width/k)}"/></pattern>')
         else:
             pitch,r=TONES[name];c=pitch/2/k
             doc.defs.append(f'<pattern id="{pid}" width="{n(pitch/k)}" height="{n(pitch/k)}" patternUnits="userSpaceOnUse" '
-                            f'patternTransform="rotate(45)"><circle cx="{n(c)}" cy="{n(c)}" r="{n(r/k)}" fill="{i}"/></pattern>')
+                            f'patternTransform="rotate(45)">{under(pitch/k)}<circle cx="{n(c)}" cy="{n(c)}" r="{n(r/k)}" fill="{i}"/></pattern>')
     return f'url(#{pid})'
 
 class Doc:
@@ -92,6 +118,8 @@ def text(doc,label,x,y,size=16,face='sans',weight=400,fill=None,anchor='start',s
             f'fill="{fill or doc.pal["ink"]}" text-anchor="{anchor}" letter-spacing="{n(spacing)}"'
             +(f' font-style="italic"' if italic else '')+f'>{esc(label)}</text>')
 
+SCRIPT_SIZE,SCRIPT_RISE=.84,.06
+
 @lru_cache(maxsize=1)
 def lettering():
     return json.loads(Path(__file__).with_name('manga_lettering.json').read_text(encoding='utf-8'))
@@ -99,10 +127,12 @@ def lettering():
 def title(doc,label,x,y,size=48,max_width=None,fill=None):
     composition=lettering().get(label)
     if not composition:
-        return text(doc,label,x,y,min(size, max_width / max(1,len(label)*.63)) if max_width else size,'serif',weight=600,fill=fill)
-    scale=size/composition['units']
+        return text(doc,label,x,y,min(size, max_width / max(1,len(label)*.63)) if max_width else size,'serif',weight=600,fill=fill or doc.pal['title'])
+    # Script lettering has long swash descenders: set it a little smaller and
+    # higher so the tails clear the line of text underneath.
+    y-=size*SCRIPT_RISE;scale=size*SCRIPT_SIZE/composition['units']
     if max_width:scale=min(scale,max_width/composition['advance'])
-    return (f'<g role="img" aria-label="{esc(label)}" transform="translate({n(x)} {n(y)}) scale({n(scale)} {n(-scale)})" fill="{fill or doc.pal["ink"]}">'
+    return (f'<g role="img" aria-label="{esc(label)}" transform="translate({n(x)} {n(y)}) scale({n(scale)} {n(-scale)})" fill="{fill or doc.pal["title"]}">'
             f'<path d="{composition["path"]}"/></g>')
 
 def text_width(s,size):
@@ -146,14 +176,14 @@ def panel(doc):
     doc.add(f'<path d="M12 10H{w-13}L{w-10} {h-13}H11Z" fill="none" stroke="{p["ink"]}" stroke-width="{n(nib(k,"contour"))}"/>')
     doc.add(f'<path d="M18 16H{w-20}M18 16V{h-21}M{w-20} 22V{h-21}H23" fill="none" stroke="{p["ink"]}" stroke-width="{n(nib(k,"detail"))}"/>')
     # Unequal nib weight, rather than a blurred or extruded card shadow.
-    doc.add(f'<path d="M11 9H{min(103,w-30)}V13H11ZM{w-13} {h-98}L{w-9} {h-13}H{w-13}Z" fill="{p["ink"]}"/>')
+    doc.add(f'<path d="M11 9H{min(103,w-30)}V13H11ZM{w-13} {h-98}L{w-9} {h-13}H{w-13}Z" fill="{p["accent"]}"/>')
 
 def petal_leaf(doc,length=34,width=10,black=False,k=1):
     """A leaf whose vein count follows its size on screen: small leaves stay clean."""
     p=doc.pal;i=p['ink'];a=p['paper'];shown_len=length*k;m=taper(shown_len,30)
     shape=f'M0 0C{-width*1.1} {-length*.29} {-width*.93} {-length*.63} 3 {-length}C{width*1.11} {-length*.68} {width} {-length*.28} 0 0Z'
-    out=f'<path d="{shape}" fill="{i if black else a}" stroke="{i}" stroke-width="{n(nib(k,"contour" if shown_len>=18 else "inner",m))}"/>'
-    vein=a if black else i
+    out=f'<path d="{shape}" fill="{p["leaf_dark"] if black else p["leaf"]}" stroke="{i}" stroke-width="{n(nib(k,"contour" if shown_len>=18 else "inner",m))}"/>'
+    vein=p['leaf'] if black else p['leaf_vein']
     if shown_len>=12:
         out+=f'<path d="M0-1Q4 {-length*.63} 3 {-length*.94}" fill="none" stroke="{vein}" stroke-width="{n(nib(k,"detail"))}"/>'
     pairs=6 if shown_len>=44 else 4 if shown_len>=30 else 2 if shown_len>=18 else 0
@@ -162,10 +192,10 @@ def petal_leaf(doc,length=34,width=10,black=False,k=1):
         for side in [-1,1]:
             out+=f'<path d="M2 {n(y)}Q{n(side*width*.39)} {n(y-length*.09)} {n(side*width*.65)} {n(y-length*.16)}" fill="none" stroke="{vein}" stroke-width="{n(nib(k,"detail"))}"/>'
     if not black:
-        out+=f'<path d="M0 0Q{-width*.5} {-length*.29} {-width*.35} {-length*.49}Q1 {-length*.27} 0 0Z" fill="{i}"/>'
+        out+=f'<path d="M0 0Q{-width*.5} {-length*.29} {-width*.35} {-length*.49}Q1 {-length*.27} 0 0Z" fill="{p["leaf_mid"]}"/>'
     return out
 
-def blossom(doc,radius=46,seed=1,kind='rose',k=1):
+def blossom(doc,radius=46,seed=1,kind='rose',k=1,colour=None):
     """Layered nib-drawn petals, hard ink folds and screentone, never lighting.
 
     Detail follows the flower's size on screen: a large head gets every fold
@@ -173,6 +203,7 @@ def blossom(doc,radius=46,seed=1,kind='rose',k=1):
     tone, so it reads as a flower instead of a grey smudge.
     """
     rng=random.Random(seed);p=doc.pal;out=[];shown_r=radius*k;m=taper(shown_r,22)
+    fill,dot,deep=colour or hue(seed,kind)
     rows=[(5,1,0)] if kind=='sakura' else [(8,1,0),(7,.71,.27),(5,.44,-.19)]
     rows=rows[:1 if shown_r<10 else 2 if shown_r<16 else 3]
     lines=0 if shown_r<14 else 3 if shown_r<24 else 5 if shown_r<34 else 7
@@ -186,22 +217,22 @@ def blossom(doc,radius=46,seed=1,kind='rose',k=1):
                    f'C{n(w*.96)} {n(-r*.36)} {n(w*.32)} {n(-r*.18)} -1 {n(-r*.12)}Z')
             shade=(f'M-1 {n(-r*.12)}Q{n(-w*.98)} {n(-r*.52)} {n(-w*.72)} {n(-r*.85)}'
                    f'Q{n(-w*.20)} {n(-r*.58)} -1 {n(-r*.12)}Z')
-            segment=f'<path d="{shape}" fill="{p["paper"]}" stroke="{p["ink"]}" stroke-width="{n(nib(k,"contour" if row==0 else "inner",m))}"/>'
+            segment=f'<path d="{shape}" fill="{fill}" stroke="{p["ink"]}" stroke-width="{n(nib(k,"contour" if row==0 else "inner",m))}"/>'
             if shown_r>=10:
-                segment+=f'<path d="{shade}" fill="{tone(doc,"fine-dots",k)}"/>'
+                segment+=f'<path d="{shade}" fill="{tone(doc,"fine-dots",k,dot)}"/>'
             # Tapered black crescent follows the hidden petal edge.
             segment+=(f'<path d="M-1 {n(-r*.12)}Q{n(-w*.87)} {n(-r*.45)} {n(-w*.81)} {n(-r*.77)}'
-                      f'Q{n(-w*.54)} {n(-r*.44)} {n(-w*.19)} {n(-r*.37)}L-1 {n(-r*.12)}Z" fill="{p["ink"]}"/>')
+                      f'Q{n(-w*.54)} {n(-r*.44)} {n(-w*.19)} {n(-r*.37)}L-1 {n(-r*.12)}Z" fill="{deep}"/>')
             for j in range(lines):
                 t=(j+.5)/lines*7-.5
                 xx=(-.33+t*.12)*w;end=-r*(.42+.12*math.sin(t*.8+row)+rng.random()*.08)
                 segment+=(f'<path d="M{n(xx*.19)} {n(-r*.24)}Q{n(xx*.78)} {n(-r*.37)} {n(xx)} {n(end)}" '
-                          f'fill="none" stroke="{p["ink"]}" stroke-width="{n(nib(k,"detail"))}"/>')
+                          f'fill="none" stroke="{deep}" stroke-width="{n(nib(k,"detail"))}"/>')
             if shown_r>=14:
                 segment+=f'<path d="M{n(-w*.61)} {n(-r*.85)}Q{n(-w*.3)} {n(-r*.97)} {n(w*.04)} {n(-r*.86)}" fill="none" stroke="{p["ink"]}" stroke-width="{n(nib(k,"detail"))}"/>'
             out.append(f'<g transform="rotate({n(a)})">{segment}</g>')
     rr=radius*.18
-    out.append(f'<path d="M{n(-rr)} 2C{n(-rr)} {n(-rr)} {n(rr)} {n(-rr)} {n(rr)} 0C{n(rr)} {n(rr)} {n(-rr*.7)} {n(rr)} {n(-rr*.6)} 0Q0 {n(-rr*.7)} {n(rr*.5)} 0Q0 {n(rr*.4)} 0 0" fill="{p["paper"]}" stroke="{p["ink"]}" stroke-width="{n(nib(k,"inner",m))}"/>')
+    out.append(f'<path d="M{n(-rr)} 2C{n(-rr)} {n(-rr)} {n(rr)} {n(-rr)} {n(rr)} 0C{n(rr)} {n(rr)} {n(-rr*.7)} {n(rr)} {n(-rr*.6)} 0Q0 {n(-rr*.7)} {n(rr*.5)} 0Q0 {n(rr*.4)} 0 0" fill="{p["heart"]}" stroke="{p["ink"]}" stroke-width="{n(nib(k,"inner",m))}"/>')
     return ''.join(out)
 
 def sprig(doc,variant=0,k=1):
@@ -218,14 +249,14 @@ def sprig(doc,variant=0,k=1):
     return ''.join(out)
 
 def sparkle(doc,x,y,r=5):
-    return f'<path d="M{n(x-r)} {n(y)}Q{n(x)} {n(y)} {n(x)} {n(y-r*1.8)}Q{n(x)} {n(y)} {n(x+r)} {n(y)}Q{n(x)} {n(y)} {n(x)} {n(y+r*1.8)}Q{n(x)} {n(y)} {n(x-r)} {n(y)}Z" fill="{doc.pal["ink"]}"/>'
+    return f'<path d="M{n(x-r)} {n(y)}Q{n(x)} {n(y)} {n(x)} {n(y-r*1.8)}Q{n(x)} {n(y)} {n(x+r)} {n(y)}Q{n(x)} {n(y)} {n(x)} {n(y+r*1.8)}Q{n(x)} {n(y)} {n(x-r)} {n(y)}Z" fill="{doc.pal["spark"]}"/>'
 
 def header(theme,section,index,mobile=False):
     w,h=(480,150) if mobile else (960,176);p=THEMES[theme]
     doc=Doc(w,h,section['title'].title(),section.get('subtitle',''),theme);k=shown(doc)
     doc.add(f'<rect width="{w}" height="{h}" fill="{p["paper"]}"/>')
     # A narrow black panel and white diamond numbering pair with the hair-like ink masses.
-    doc.add(f'<path d="M16 21H{90 if not mobile else 60}V{120 if not mobile else 108}H16Z" fill="{p["ink"]}"/>')
+    doc.add(f'<path d="M16 21H{90 if not mobile else 60}V{120 if not mobile else 108}H16Z" fill="{p["title"]}"/>')
     center=53 if not mobile else 38
     doc.add(text(doc,section['number'],center,70 if not mobile else 64,31 if not mobile else 23,'serif',fill=p['paper'],anchor='middle',italic=True))
     doc.add(text(doc,'CH.',center,94 if not mobile else 85,9,'sans',fill=p['paper'],anchor='middle',spacing=2))
@@ -243,14 +274,14 @@ def header(theme,section,index,mobile=False):
     doc.add(line(doc,16,h-17,w-16,h-17,nib(k,"contour")));doc.add(line(doc,16,h-13,w-16,h-13,nib(k,"detail")))
     return doc
 
-def small_flower(doc,level,k=1):
+def small_flower(doc,level,k=1,colour=None):
+    """A calendar mark: size and colour both step up with the GitHub level."""
     p=doc.pal;thin=n(nib(k,"detail"))
     if level==0:return f'<circle r="1.75" fill="none" stroke="{p["faint"]}" stroke-width="{thin}"/>'
-    r=[0,3.1,4,5.1,6.1][level];parts=[]
+    r=[0,3.1,4,5.1,6.1][level];parts=[];fill=colour or p['levels'][level-1]
     for i in range(5):
-        fill=p['paper'] if level==1 else (tone(doc,"fine-dots",k) if level==2 else p['ink'])
         parts.append(f'<ellipse cx="0" cy="{n(-r*.56)}" rx="{n(r*.43)}" ry="{n(r*.64)}" transform="rotate({i*72})" fill="{fill}" stroke="{p["ink"]}" stroke-width="{thin}"/>')
-    parts.append(f'<circle r="{n(r*.23)}" fill="{p["ink"] if level<3 else p["paper"]}"/>')
+    parts.append(f'<circle r="{n(r*.23)}" fill="{p["heart"] if level<4 else p["paper"]}"/>')
     if level==4:parts.append(f'<circle r=".7" fill="{p["ink"]}"/>')
     return ''.join(parts)
 
@@ -331,10 +362,10 @@ def bouquet_card(theme,snap,mobile=False):
         doc.add(text(doc,'gathered in ink',175,529,22,'serif',italic=True,anchor='middle'))
         doc.add(line(doc,344,112,344,523,nib(k,"detail")))
         x,right,y,gap=387,912,145,64
-    patterns=[p['ink'],tone(doc,"hatch",k),tone(doc,"dense-dots",k),tone(doc,"dots",k),tone(doc,"fine-dots",k),p['ink']]
+    patterns=p['bars']
     for j,(name,value) in enumerate(vals):
         share=value/total if total else 0
-        doc.add(place(x-18,y-6,small_flower(doc,4 if j==0 else 1,k*.8),scale=.8))
+        doc.add(place(x-18,y-6,small_flower(doc,4 if j==0 else 2,k*.8,patterns[j%6]),scale=.8))
         doc.add(text(doc,fit(name,19 if mobile else 22,right-x-86),x,y,19 if mobile else 22,weight=600))
         doc.add(text(doc,f'{share*100:.1f}%',right,y+1,26 if mobile else 29,'serif',italic=True,anchor='end'))
         bw=right-x;by=y+15
@@ -421,7 +452,7 @@ def repo_card(theme,repo,index,mobile=False,art=None):
         doc.add(f'<rect x="643" y="19" width="290" height="215" fill="{tone(doc,"dots",k)}"/>')
         doc.add(place(643,19,vignettes.draw(doc,art,k)))
         doc.add(f'<path d="M639 17L640 241" stroke="{p["ink"]}" stroke-width="{n(nib(k,"contour"))}"/>')
-        doc.add(f'<rect x="824" y="210" width="103" height="25" fill="{p["paper"]}" stroke="{p["ink"]}" stroke-width="{n(nib(k,"inner"))}"/>')
+        doc.add(f'<rect x="824" y="210" width="103" height="25" fill="{p["petals"]["sakura"][0]}" stroke="{p["ink"]}" stroke-width="{n(nib(k,"inner"))}"/>')
         doc.add(text(doc,'OPEN  →',875,227,11,anchor='middle',spacing=1.1))
     return doc
 
@@ -443,6 +474,7 @@ def picture(base,alt,width='100%',href=None):
 def bouquet_art(doc,k=1):
     """An original flower arrangement, drawn as solid ink, contours and dots."""
     p=doc.pal;i=p['ink'];a=p['paper'];out=[]
+    rib_light,rib_mid,rib=p['petals']['azure']
     stems=['M171 351C137 278 92 176 62 135','M172 351C207 266 223 178 198 83','M171 352C216 280 271 218 276 179','M171 353C120 312 85 282 52 253','M171 355C200 315 255 310 259 274','M170 355C153 278 126 228 126 204']
     for d in stems:
         out.append(f'<path d="{d}" fill="none" stroke="{i}" stroke-width="{n(nib(k,"contour")*1.25)}"/>')
@@ -450,21 +482,21 @@ def bouquet_art(doc,k=1):
         out.append(place(x,y,petal_leaf(doc,l,w,bool(black),k),rotate=angle))
     for x,y,r,seed,kind,angle in [(62,135,39,151,'rose',-15),(276,179,33,143,'sakura',20),(52,253,24,16,'sakura',-12),(259,274,30,125,'sakura',-16),(198,83,60,72,'rose',16),(126,204,42,192,'rose',-5)]:
         out.append(place(x,y,blossom(doc,r,seed,kind,k),rotate=angle))
-    # A flowing black ribbon echoes the avatar's large ink masses and white hair highlights.
-    out.append(f'<path d="M170 350C142 320 85 317 92 343C97 368 145 364 170 350Z" fill="{i}" stroke="{i}" stroke-width="{n(nib(k,"inner"))}"/>')
-    out.append(f'<path d="M176 350C205 319 246 324 233 348C221 373 195 365 176 350Z" fill="{a}" stroke="{i}" stroke-width="{n(nib(k,"contour"))}"/>')
-    out.append(f'<path d="M176 350C207 333 224 334 230 340C207 341 193 354 179 356Z" fill="{tone(doc,"fine-dots",k)}"/>')
-    out.append(f'<path d="M168 353C162 380 148 391 135 413L151 407L162 414C163 393 186 368 178 354Z" fill="{i}"/>')
-    out.append(f'<path d="M174 354C202 371 214 389 232 399L213 398L208 408C202 385 180 380 170 358Z" fill="{a}" stroke="{i}" stroke-width="{n(nib(k,"contour"))}"/>')
+    # A ribbon in the avatar's eye blue: deep on the shaded loop, pale on the lit one.
+    out.append(f'<path d="M170 350C142 320 85 317 92 343C97 368 145 364 170 350Z" fill="{rib}" stroke="{i}" stroke-width="{n(nib(k,"inner"))}"/>')
+    out.append(f'<path d="M176 350C205 319 246 324 233 348C221 373 195 365 176 350Z" fill="{rib_light}" stroke="{i}" stroke-width="{n(nib(k,"contour"))}"/>')
+    out.append(f'<path d="M176 350C207 333 224 334 230 340C207 341 193 354 179 356Z" fill="{tone(doc,"fine-dots",k,rib_mid)}"/>')
+    out.append(f'<path d="M168 353C162 380 148 391 135 413L151 407L162 414C163 393 186 368 178 354Z" fill="{rib}" stroke="{i}" stroke-width="{n(nib(k,"inner"))}"/>')
+    out.append(f'<path d="M174 354C202 371 214 389 232 399L213 398L208 408C202 385 180 380 170 358Z" fill="{rib_light}" stroke="{i}" stroke-width="{n(nib(k,"contour"))}"/>')
     out.append(f'<path d="M102 340Q131 332 163 350M103 345Q131 342 161 353M165 367Q156 392 146 401" fill="none" stroke="{a}" stroke-width="{n(nib(k,"detail"))}"/>')
     out.append(f'<path d="M185 362Q202 381 217 391" fill="none" stroke="{i}" stroke-width="{n(nib(k,"detail"))}"/>')
-    out.append(f'<path d="M162 343Q174 339 182 348L179 360Q168 364 161 353Z" fill="{i}"/><path d="M168 347Q173 344 177 349" fill="none" stroke="{a}" stroke-width="{n(nib(k,"detail"))}"/>')
+    out.append(f'<path d="M162 343Q174 339 182 348L179 360Q168 364 161 353Z" fill="{rib}" stroke="{i}" stroke-width="{n(nib(k,"detail"))}"/><path d="M168 347Q173 344 177 349" fill="none" stroke="{a}" stroke-width="{n(nib(k,"detail"))}"/>')
     return '<g data-ink-art="bouquet">'+''.join(out)+'</g>'
 
 
 def footer(theme,mobile=False):
     w=480 if mobile else 960;h=108;p=THEMES[theme]
-    doc=Doc(w,h,'One day, one flower.','一日一輪 / An original monochrome manga-style profile.',theme)
+    doc=Doc(w,h,'One day, one flower.','一日一輪 / An original colour manga-style profile.',theme)
     doc.add(f'<rect width="{w}" height="{h}" fill="{p["paper"]}"/>')
     k=shown(doc)
     doc.add(line(doc,28,18,w-28,18,nib(k,"contour")))
