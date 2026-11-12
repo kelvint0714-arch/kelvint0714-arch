@@ -15,6 +15,15 @@
 </picture>
 
 <!-- GARDEN-REPOS:START -->
+<a href="https://github.com/kelvint0714-arch/Draft">
+<picture>
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/repos/draft-ebf12ef-dark-mobile.svg" />
+  <source media="(max-width: 600px)" srcset="./assets/repos/draft-ebf12ef-light-mobile.svg" />
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/repos/draft-ebf12ef-dark.svg" />
+  <img src="./assets/repos/draft-ebf12ef-light.svg" width="100%" alt="Draft. No description provided. Language not specified. 0 stars. Updated 2026-11-12. Open repository." />
+</picture>
+</a>
+
 <a href="https://github.com/kelvint0714-arch/kelvint0714-arch.github.io">
 <picture>
   <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/repos/kelvint0714-arch-github-io-b5ab2e7-dark-mobile.svg" />
@@ -26,6 +35,8 @@
 
 <details>
 <summary>Repository text index / 仓库文字索引</summary>
+
+<p><a href="https://github.com/kelvint0714-arch/Draft"><strong>Draft</strong></a><br />No description provided.<br /><sub>Language not specified</sub></p>
 
 <p><a href="https://github.com/kelvint0714-arch/kelvint0714-arch.github.io"><strong>kelvint0714-arch.github.io</strong></a><br />Event Horizon — Kelvin Tang&#x27;s personal homepage · Kelvin Tang 的个人主页<br /><sub>TypeScript</sub></p>
 
