@@ -1,6 +1,6 @@
 {
  "user": "kelvint0714-arch",
- "fetched_at": "2026-11-18T02:22:29Z",
+ "fetched_at": "2026-11-18T10:40:14Z",
  "calendar": {
   "total": 99,
   "days": [
@@ -2349,67 +2349,6 @@
     "ref": "refs/heads/main",
     "head": "ccb2d79d5c834831f5f2dd5b109ac94f806c1ff3",
     "before": "c5e726a951d1f332d3cbc330c58df2bf6d565de9"
-   }
-  },
-  {
-   "type": "PushEvent",
-   "repo": "kelvint0714-arch/kelvint0714-arch",
-   "created_at": "2026-10-17T08:53:23Z",
-   "payload": {
-    "repository_id": 1422996978,
-    "push_id": 46803422544,
-    "ref": "refs/heads/main",
-    "head": "c5e726a951d1f332d3cbc330c58df2bf6d565de9",
-    "before": "39aaffe415b193c4b85e021004a258d3479a1038"
-   }
-  },
-  {
-   "type": "PushEvent",
-   "repo": "kelvint0714-arch/kelvint0714-arch.github.io",
-   "created_at": "2026-10-18T05:48:01Z",
-   "payload": {
-    "repository_id": 1418565958,
-    "push_id": 46878175740,
-    "ref": "refs/heads/main",
-    "head": "46baaa3a33d2eaf89923a90faea1fc0d4c8528a3",
-    "before": "31b575e61616e3cc38337ef09a7924294d2ce528"
-   }
-  },
-  {
-   "type": "CreateEvent",
-   "repo": "kelvint0714-arch/kelvint0714-arch.github.io",
-   "created_at": "2026-10-18T06:28:58Z",
-   "payload": {
-    "ref": "mist-and-weather",
-    "ref_type": "branch",
-    "full_ref": "refs/heads/mist-and-weather",
-    "master_branch": "main",
-    "description": "Event Horizon — Kelvin Tang's personal homepage · Kelvin Tang 的个人主页",
-    "pusher_type": "user"
-   }
-  },
-  {
-   "type": "DeleteEvent",
-   "repo": "kelvint0714-arch/kelvint0714-arch.github.io",
-   "created_at": "2026-10-18T05:48:13Z",
-   "payload": {
-    "ref": "bridge-by-itself",
-    "ref_type": "branch",
-    "full_ref": "refs/heads/bridge-by-itself",
-    "pusher_type": "user"
-   }
-  },
-  {
-   "type": "CreateEvent",
-   "repo": "kelvint0714-arch/kelvint0714-arch.github.io",
-   "created_at": "2026-10-18T05:47:24Z",
-   "payload": {
-    "ref": "bridge-by-itself",
-    "ref_type": "branch",
-    "full_ref": "refs/heads/bridge-by-itself",
-    "master_branch": "main",
-    "description": "Event Horizon — Kelvin Tang's personal homepage · Kelvin Tang 的个人主页",
-    "pusher_type": "user"
    }
   }
  ]
